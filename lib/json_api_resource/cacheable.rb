@@ -5,7 +5,7 @@ module JsonApiResource
       case
         when new_record?
           "#{self.class.model_name.cache_key}/new"
-        when timestamp = self[:updated_at]
+        when timestamp = try(:updated_at)
           "#{self.class.model_name.cache_key}/#{id}-#{timestamp}"
         else
           "#{self.class.model_name.cache_key}/#{id}"
