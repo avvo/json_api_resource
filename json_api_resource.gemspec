@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.summary = 'Build wrapper/adapter objects around JsonApiClient instances'
 
   s.add_dependency "json_api_client", '~> 0.5'
+  s.add_dependency "json_api_client_mock", '~> 0.2'
   
   s.add_development_dependency "webmock", '> 0'
   s.license = "MIT"

@@ -1,8 +1,9 @@
 PATH
   remote: .
   specs:
-    json_api_resource (0.1.0)
+    json_api_resource (0.1.1)
       json_api_client (~> 0.5)
+      json_api_client_mock (~> 0.2)
 
 GEM
   remote: http://rubygems.org/
@@ -22,7 +23,13 @@ GEM
     json_api_client (0.6.0)
       activesupport
       faraday (~> 0.8.0)
+    json_api_client_mock (0.2.1)
+      json_api_client (>= 0.2.4)
+      mocha
+    metaclass (0.0.4)
     minitest (5.5.0)
+    mocha (1.1.0)
+      metaclass (~> 0.0.1)
     multipart-post (1.2.0)
     rake (0.9.4)
     thread_safe (0.3.4)

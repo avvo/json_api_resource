@@ -6,4 +6,5 @@ module JsonApiResource
   autoload :Schemable,    'json_api_resource/schemable'
   autoload :Resource,     'json_api_resource/resource'
   autoload :Cacheable,    'json_api_resource/cacheable'
+  autoload :Mockable,     'json_api_resource/mockable'
 end
