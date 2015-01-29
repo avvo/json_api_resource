@@ -20,7 +20,7 @@ module JsonApiResource
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
-      super(opts)
+      update_attributes(opts)
     end
 
     def new_record?
@@ -38,11 +38,16 @@ module JsonApiResource
     end
 
     def update_attributes(opts = {})
-      run_callbacks :update_attributes do
-        self.client.update_attributes(opts)
+      if opts.is_a? self.client_klass
+        self.client = opts
+      elsif client_params = opts.delete(:client)
+        self.client = client_params
+      else
+        run_callbacks :update_attributes do
+          self.client.update_attributes(opts)
+        end
       end
     end
-
 
     protected
 
