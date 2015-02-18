@@ -2,14 +2,7 @@ module JsonApiResource
   module Cacheable
     extend ActiveSupport::Concern
     def cache_key
-      case
-        when new_record?
-          "#{self.class.model_name.cache_key}/new"
-        when timestamp = try(:updated_at)
-          "#{self.class.model_name.cache_key}/#{id}-#{timestamp}"
-        else
-          "#{self.class.model_name.cache_key}/#{id}"
-      end
+      @cache_key ||= Digest::SHA256.hexdigest(self.to_json)
     end
   end
 end
