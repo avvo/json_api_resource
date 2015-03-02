@@ -20,7 +20,7 @@ module JsonApiResource
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
-      update_attributes(opts)
+      self.attributes = opts
     end
 
     def new_record?
@@ -37,15 +37,14 @@ module JsonApiResource
       end
     end
 
-    def update_attributes(opts = {})
-      if opts.is_a? self.client_klass
-        self.client = opts
-      elsif client_params = opts.delete(:client)
+    def attributes=(attr = {})
+      client_params = attr.delete(:client)
+      if attr.is_a? self.client_klass
+        self.client = attr
+      elsif client_params
         self.client = client_params
       else
-        run_callbacks :update_attributes do
-          self.client.update_attributes(opts)
-        end
+        self.client.attributes = attr
       end
     end
 
@@ -64,6 +63,16 @@ module JsonApiResource
     def errors
       JsonApiResource::ApiErrors(self.client.errors).each do | k,messages|
         self.errors.add(k.to_sym, Array(messages).join(', '))
+      end
+    end
+
+    def self.method_missing(method, *args, &block)
+      if match = method.to_s.match(/^(.*)=$/)
+        self.client_klass.send(match[1], args.first)
+      elsif self.client_klass.respond_to?(method.to_sym)
+        self.client_klass.send(method, *args)
+      else
+        super
       end
     end
   end
