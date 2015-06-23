@@ -61,9 +61,10 @@ module JsonApiResource
     end
 
     def errors
-      JsonApiResource::ApiErrors(self.client.errors).each do | k,messages|
+      error_list = JsonApiResource::ApiErrors(self.client.errors).each do | k,messages|
         self.errors.add(k.to_sym, Array(messages).join(', '))
       end
+      error_list || {}
     end
 
     def self.method_missing(method, *args, &block)
