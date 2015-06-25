@@ -51,7 +51,7 @@ module JsonApiResource
     protected
 
     def method_missing(method, *args, &block)
-      if match = method.to_s.match(/^(.*)=$/)
+      if match = method.to_s.match(/^(.*=)$/)
         self.client.send(match[1], args.first)
       elsif self.client.respond_to?(method.to_sym)
         is_method = self.client.methods.include?(method.to_sym)
