@@ -73,6 +73,10 @@ module JsonApiResource
       self.errors
     end
 
+    def catch_errors
+
+    end
+
     def self.method_missing(method, *args, &block)
       if match = method.to_s.match(/^(.*)=$/)
         self.client_klass.send(match[1], args.first)
