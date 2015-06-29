@@ -51,10 +51,15 @@ module JsonApiResource
     protected
 
     def method_missing(method, *args, &block)
-      if match = method.to_s.match(/^(.*)=$/)
+      if match = method.to_s.match(/^(.*=)$/)
         self.client.send(match[1], args.first)
       elsif self.client.respond_to?(method.to_sym)
-        self.client.send(method)
+        is_method = self.client.methods.include?(method.to_sym)
+        if (is_method ? self.client.method(method.to_sym).arity : 0) == 0
+          self.client.send(method)
+        else
+          self.client.send(method, args.first)
+        end
       else
         super
       end
@@ -64,6 +69,11 @@ module JsonApiResource
       JsonApiResource::ApiErrors(self.client.errors).each do | k,messages|
         self.errors.add(k.to_sym, Array(messages).join(', '))
       end
+      self.errors
+    end
+
+    def catch_errors
+
     end
 
     def self.method_missing(method, *args, &block)
