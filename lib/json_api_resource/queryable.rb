@@ -2,9 +2,9 @@ module JsonApiResource
   module Queryable
     extend ActiveSupport::Concern
 
-    attr_accessor :query_result_meta
-    attr_accessor :query_result_linked_data
-    attr_accessor :query_result_errors
+    attr_accessor :meta
+    attr_accessor :linked_data
+    attr_accessor :errors
 
     module ClassMethods
 
@@ -35,7 +35,7 @@ module JsonApiResource
 
       private
 
-      QUERY_RESULT_METHOD_IDENTIFIER = "query_result_"
+      QUERY_RESULT_METADATA_SETTERS = [:meta=, :linked_data=, :errors=]
 
       # When we return a collection, these extra attributes on top of the result array from JsonApiClient are present.
       # When we find just one thing and return the first element like ActiveRecord would,
@@ -44,9 +44,9 @@ module JsonApiResource
         single_result = result_set.first
 
         single_result.methods.select{|method_name| is_query_result_setter_method(method_name)}.each do |setter_method_name|
-          attribute_part_only = setter_method_name.to_s.gsub(QUERY_RESULT_METHOD_IDENTIFIER, "").gsub("=", "")
-          if (result_set.methods.include?(attribute_part_only.to_sym))
-            single_result.send(setter_method_name, result_set.send(attribute_part_only))
+          getter_method_name = setter_method_name.to_s.gsub("=", "")
+          if (result_set.methods.include?(getter_method_name.to_sym))
+            single_result.send(setter_method_name, result_set.send(getter_method_name))
           end
         end
 
@@ -54,7 +54,7 @@ module JsonApiResource
       end
 
       def is_query_result_setter_method(method_name)
-        method_name.to_s.start_with?(QUERY_RESULT_METHOD_IDENTIFIER) && method_name.to_s.end_with?("=")
+        QUERY_RESULT_METADATA_SETTERS.include?(method_name.to_sym)
       end
 
     end
