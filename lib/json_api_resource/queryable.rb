@@ -43,18 +43,22 @@ module JsonApiResource
       def get_single_result(result_set)
         single_result = result_set.first
 
-        single_result.methods.select{|method_name| is_query_result_setter_method(method_name)}.each do |setter_method_name|
-          getter_method_name = setter_method_name.to_s.gsub("=", "")
-          if (result_set.methods.include?(getter_method_name.to_sym))
-            single_result.send(setter_method_name, result_set.send(getter_method_name))
+        query_methods(single_result).each do |setter|
+          getter = setter.to_s.gsub("=", "")
+          if (result_set.methods.respond_to?(getter.to_sym))
+            single_result.send(setter, result_set.send(getter))
           end
         end
 
         return single_result
       end
 
-      def is_query_result_setter_method(method_name)
-        QUERY_RESULT_METADATA_SETTERS.include?(method_name.to_sym)
+      def query_methods(single_obj)
+        methods = []
+        QUERY_RESULT_METADATA_SETTERS.each do |setter|
+          methods << setter if single_obj.respond_to?(setter)
+        end
+        methods
       end
 
     end
