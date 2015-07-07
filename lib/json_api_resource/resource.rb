@@ -55,10 +55,12 @@ module JsonApiResource
         self.client.send(match[1], args.first)
       elsif self.client.respond_to?(method.to_sym)
         is_method = self.client.methods.include?(method.to_sym)
-        if (is_method ? self.client.method(method.to_sym).arity : 0) == 0
+        argument_count = (is_method ? self.client.method(method.to_sym).arity : 0)
+        argument_count = args.length if argument_count == -1
+        if (argument_count == 0) || args.blank?
           self.client.send(method)
         else
-          self.client.send(method, args.first)
+          self.client.send(method, *args.take(argument_count))
         end
       else
         super
