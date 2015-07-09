@@ -14,9 +14,9 @@ module JsonApiResource
 
     define_model_callbacks :save, :create, :update_attributes
 
-    after_create :catch_errors
-    after_save   :catch_errors
-    after_update_attributes :catch_errors
+    around_create :catch_errors
+    around_save   :catch_errors
+    around_update_attributes :catch_errors
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
@@ -51,19 +51,30 @@ module JsonApiResource
     protected
 
     def method_missing(method, *args, &block)
-      if match = method.to_s.match(/^(.*)=$/)
+      if match = method.to_s.match(/^(.*=)$/)
         self.client.send(match[1], args.first)
       elsif self.client.respond_to?(method.to_sym)
-        self.client.send(method)
+        is_method = self.client.methods.include?(method.to_sym)
+        argument_count = (is_method ? self.client.method(method.to_sym).arity : 0)
+        argument_count = args.length if argument_count == -1
+        if (argument_count == 0) || args.blank?
+          self.client.send(method)
+        else
+          self.client.send(method, *args.take(argument_count))
+        end
       else
         super
       end
     end
 
-    def errors
-      JsonApiResource::ApiErrors(self.client.errors).each do | k,messages|
+    def catch_errors
+      yield
+
+      self.errors ||= ActiveModel::Errors.new(self)
+      ApiErrors(self.client.errors).each do | k,messages|
         self.errors.add(k.to_sym, Array(messages).join(', '))
       end
+      self.errors
     end
 
     def self.method_missing(method, *args, &block)
