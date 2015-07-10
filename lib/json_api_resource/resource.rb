@@ -20,6 +20,7 @@ module JsonApiResource
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
+      self.errors = ActiveModel::Errors.new(self)
       self.attributes = opts
     end
 
