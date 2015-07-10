@@ -14,9 +14,9 @@ module JsonApiResource
 
     define_model_callbacks :save, :create, :update_attributes
 
-    after_create :catch_errors
-    after_save   :catch_errors
-    after_update_attributes :catch_errors
+    around_create :catch_errors
+    around_save   :catch_errors
+    around_update_attributes :catch_errors
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
@@ -67,15 +67,14 @@ module JsonApiResource
       end
     end
 
-    def errors
-      JsonApiResource::ApiErrors(self.client.errors).each do | k,messages|
+    def catch_errors
+      yield
+
+      self.errors ||= ActiveModel::Errors.new(self)
+      ApiErrors(self.client.errors).each do | k,messages|
         self.errors.add(k.to_sym, Array(messages).join(', '))
       end
       self.errors
-    end
-
-    def catch_errors
-
     end
 
     def self.method_missing(method, *args, &block)
