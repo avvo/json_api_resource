@@ -43,7 +43,7 @@ module JsonApiResource
 
         query_methods_for(result).each do |setter|
           getter = setter.to_s.gsub("=", "")
-          puts getter, results.respond_to?(getter), results.methods.respond_to?(getter), results.inspect
+          
           if results.respond_to? getter
 
             results_meta = results.send getter
@@ -73,8 +73,6 @@ module JsonApiResource
         else
           error_response 500, { name: "ServerError", message: e.message }
         end
-
-        result
       end
 
 
