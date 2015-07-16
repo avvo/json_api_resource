@@ -15,7 +15,7 @@ module JsonApiResource
         end
         results.size == 1 ? single_result(results) : results
       rescue JsonApiClient::Errors::ServerError => e
-        error_result e
+        pretty_error e
       end
 
       def create(attr = {})
@@ -30,7 +30,7 @@ module JsonApiResource
           self.new(:client => result)
         end
       rescue JsonApiClient::Errors::ServerError => e
-        error_result e
+        pretty_error e
       end
 
       private
@@ -61,19 +61,30 @@ module JsonApiResource
         end
       end
 
-      def error_result(e)
-        result = JsonApiClient::ResultSet.new
+      def pretty_error(e)
         case e.class 
    
         when JsonApiClient::Errors::NotFound
-          result.meta = {status: 404, errors: "RecordNotFound"}
+          error_response 404, { name: "RecordNotFound", message: e.message }
    
         when JsonApiClient::Errors::UnexpectedStatus
-          result.meta = {status: e.code, errors: "UnexpectedStatus"}
+          error_response e.code, { name: "UnexpectedStatus", message: e.message }
         
         else
-          result.meta = {status: 500, errors: "ServerError"}
+          error_response 500, { name: "ServerError", message: e.message }
         end
+
+        result
+      end
+
+
+      def error_response(status, error)
+        result = JsonApiClient::ResultSet.new
+        
+        result.meta = {status: status}
+        
+        result.errors = ActiveModel::Errors.new(result)
+        result.errors.add(error[:name], Array(error[:message]).join(', '))
 
         result
       end
