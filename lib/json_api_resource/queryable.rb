@@ -41,24 +41,15 @@ module JsonApiResource
       def single_result(results)
         result = results.first
 
-        query_methods_for(result).each do |setter|
-          getter = setter.to_s.gsub("=", "")
-          
-          if results.respond_to? getter
+        result.meta = results.meta
 
-            results_meta = results.send getter
-            
-            result.send setter, results_meta
-          end
+        results.errors.each do |error|
+          result.errors.add error
         end
+
+        result.linked_data = results.linked_data if results.respond_to? :linked_data
 
         return result
-      end
-
-      def query_methods_for(result)
-        [:meta=, :linked_data=, :errors=].select do |setter|
-          result.respond_to?(setter)
-        end
       end
 
       def pretty_error(e)
