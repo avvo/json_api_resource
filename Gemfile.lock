@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    json_api_resource (0.3.2)
+    json_api_resource (0.3.4)
       json_api_client (~> 0.5)
       json_api_client_mock (~> 0.2)
 
@@ -47,3 +47,6 @@ DEPENDENCIES
   json_api_resource!
   rake
   webmock (> 0)
+
+BUNDLED WITH
+   1.10.5
