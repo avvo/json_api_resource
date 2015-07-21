@@ -47,6 +47,3 @@ DEPENDENCIES
   json_api_resource!
   rake
   webmock (> 0)
-
-BUNDLED WITH
-   1.10.5
