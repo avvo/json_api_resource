@@ -54,24 +54,23 @@ module JsonApiResource
 
       def pretty_error(e)
         case e.class.to_s
-   
+
         when 'JsonApiClient::Errors::NotFound'
           error_response 404, { name: "RecordNotFound", message: e.message }
-   
+
         when 'JsonApiClient::Errors::UnexpectedStatus'
           error_response e.code, { name: "UnexpectedStatus", message: e.message }
-        
+
         else
           error_response 500, { name: "ServerError", message: e.message }
         end
       end
 
-
       def error_response(status, error)
         result = JsonApiClient::ResultSet.new
-        
+
         result.meta = {status: status}
-        
+
         result.errors = ActiveModel::Errors.new(result)
         result.errors.add(error[:name], Array(error[:message]).join(', '))
 
