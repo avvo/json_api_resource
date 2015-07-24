@@ -81,11 +81,22 @@ module JsonApiResource
     def self.method_missing(method, *args, &block)
       if match = method.to_s.match(/^(.*)=$/)
         self.client_klass.send(match[1], args.first)
+      
       elsif self.client_klass.respond_to?(method.to_sym)
-        self.client_klass.send(method, *args)
+        results = self.client_klass.send(method, *args)
+
+        if results.is_a? JsonApiClient::ResultSet
+          results.map! do |result|
+            self.new(:client => result)
+          end
+        end
+        results
       else
         super
       end
+
+    rescue JsonApiClient::Errors::ServerError => e
+      pretty_error e
     end
   end
 end
