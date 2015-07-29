@@ -45,6 +45,7 @@ module JsonApiResource
 
         result.meta = results.meta
 
+        # There will never be errors here but this provides a good default for forms
         result.errors = ActiveModel::Errors.new(result)
 
         result.linked_data = results.linked_data if results.respond_to? :linked_data

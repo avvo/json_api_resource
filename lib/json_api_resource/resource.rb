@@ -38,6 +38,12 @@ module JsonApiResource
       end
     end
 
+    def update_attributes(attrs = {})
+      run_callbacks :update_attributes do
+        self.client.update_attributes(attrs)
+      end
+    end
+
     def attributes=(attr = {})
       client_params = attr.delete(:client)
       if attr.is_a? self.client_klass
