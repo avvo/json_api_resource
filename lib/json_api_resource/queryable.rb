@@ -45,8 +45,6 @@ module JsonApiResource
 
         result.meta = results.meta
 
-        result.errors = ApiErrors(results.errors)
-
         result.linked_data = results.linked_data if results.respond_to? :linked_data
 
         return result
