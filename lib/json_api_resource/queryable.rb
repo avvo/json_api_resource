@@ -35,6 +35,19 @@ module JsonApiResource
         pretty_error e
       end
 
+      def all(opts = {})
+        page_total = 1
+        current_page = 1
+        all_results = []
+        until current_page > page_total
+          page_of_results = where({:page => current_page}.merge(opts))
+          all_results << page_of_results
+          page_total = page_of_results.meta[:total_pages]
+          current_page = current_page + 1
+        end
+        all_results.flatten.compact
+      end
+
       private
 
       # When we return a collection, these extra attributes on top of the result array from JsonApiClient are present.
