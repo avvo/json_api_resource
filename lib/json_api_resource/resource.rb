@@ -5,18 +5,13 @@ module JsonApiResource
     extend  ActiveModel::Callbacks
 
     include JsonApiResource::Schemable
+    include JsonApiResource::Requestable
     include JsonApiResource::Queryable
     include JsonApiResource::Conversions
     include JsonApiResource::Cacheable
 
     attr_accessor :client, :cache_expires_in
     class_attribute :client_klass, :per_page
-
-    define_model_callbacks :save, :create, :update_attributes
-
-    around_create :catch_errors
-    around_save   :catch_errors
-    around_update_attributes :catch_errors
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
@@ -30,18 +25,6 @@ module JsonApiResource
 
     def persisted?
       !new_record?
-    end
-
-    def save
-      run_callbacks :save do
-        self.client.save
-      end
-    end
-
-    def update_attributes(attrs = {})
-      run_callbacks :update_attributes do
-        self.client.update_attributes(attrs)
-      end
     end
 
     def attributes=(attr = {})
@@ -74,35 +57,16 @@ module JsonApiResource
       end
     end
 
-    def catch_errors
-      yield
-
-      self.errors ||= ActiveModel::Errors.new(self)
-      ApiErrors(self.client.errors).each do | k,messages|
-        self.errors.add(k.to_sym, Array(messages).join(', '))
-      end
-      self.errors
-    end
-
     def self.method_missing(method, *args, &block)
       if match = method.to_s.match(/^(.*)=$/)
         self.client_klass.send(match[1], args.first)
       
       elsif self.client_klass.respond_to?(method.to_sym)
-        results = self.client_klass.send(method, *args)
-
-        if results.is_a? JsonApiClient::ResultSet
-          results.map! do |result|
-            self.new(:client => result)
-          end
-        end
-        results
+        magic(method, *args)
       else
         super
       end
 
-    rescue JsonApiClient::Errors::ServerError => e
-      pretty_error e
     end
   end
 end
