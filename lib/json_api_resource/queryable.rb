@@ -44,7 +44,7 @@ module JsonApiResource
         until (current_page > page_total) || (current_page > MAX_PAGES_FOR_ALL)
           page_of_results = where({:page => current_page}.merge(opts))
           all_results << page_of_results
-          page_total = page_of_results.meta[:total_pages]
+          page_total = page_of_results.meta[:total_pages] || 1
           current_page = current_page + 1
         end
         JsonApiClient::ResultSet.new(all_results.flatten.compact)
