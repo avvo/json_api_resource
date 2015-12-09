@@ -47,7 +47,7 @@ module JsonApiResource
           page_total = page_of_results.meta[:total_pages]
           current_page = current_page + 1
         end
-        all_results.flatten.compact
+        JsonApiClient::ResultSet.new(all_results.flatten.compact)
       end
 
       private
