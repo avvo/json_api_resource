@@ -6,6 +6,8 @@ module JsonApiResource
     attr_accessor :linked_data
     attr_accessor :errors
 
+    MAX_PAGES_FOR_ALL = 25
+
     module ClassMethods
 
       include JsonApiResource::Conversions
@@ -35,11 +37,11 @@ module JsonApiResource
         pretty_error e
       end
 
-      def all(opts = {})
+      def all_without_pagination(opts = {})
         page_total = 1
         current_page = 1
         all_results = []
-        until current_page > page_total
+        until (current_page > page_total) || (current_page > MAX_PAGES_FOR_ALL)
           page_of_results = where({:page => current_page}.merge(opts))
           all_results << page_of_results
           page_total = page_of_results.meta[:total_pages]
