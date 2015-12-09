@@ -104,5 +104,13 @@ module JsonApiResource
     rescue JsonApiClient::Errors::ServerError => e
       pretty_error e
     end
+
+    def respond_to_missing?(method_name, include_private = false)
+      client.respond_to?(method_name.to_sym) || super
+    end
+
+    def self.respond_to_missing?(method_name, include_private = false)
+      client_klass.respond_to?(method_name.to_sym) || super
+    end
   end
 end
