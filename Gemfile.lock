@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    json_api_resource (0.4.3)
+    json_api_resource (0.4.5)
       json_api_client (~> 0.5)
       json_api_client_mock (~> 0.2)
 
@@ -16,14 +16,14 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.3.2)
     crack (0.3.2)
-    faraday (0.8.11)
-      multipart-post (~> 1.2.0)
+    faraday (0.9.2)
+      multipart-post (>= 1.2, < 3)
     i18n (0.7.0)
     json (1.8.3)
-    json_api_client (0.9.4)
+    json_api_client (0.9.5)
       activesupport
       addressable (~> 2.2)
-      faraday (~> 0.8.0)
+      faraday (>= 0.8.0)
     json_api_client_mock (0.3.0)
       json_api_client (>= 0.3.4)
       mocha
@@ -31,7 +31,7 @@ GEM
     minitest (5.8.3)
     mocha (1.1.0)
       metaclass (~> 0.0.1)
-    multipart-post (1.2.0)
+    multipart-post (2.0.0)
     rake (0.9.4)
     thread_safe (0.3.5)
     tzinfo (1.2.2)
@@ -47,3 +47,6 @@ DEPENDENCIES
   json_api_resource!
   rake
   webmock (> 0)
+
+BUNDLED WITH
+   1.10.6
