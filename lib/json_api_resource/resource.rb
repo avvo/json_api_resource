@@ -36,12 +36,16 @@ module JsonApiResource
       run_callbacks :save do
         self.client.save
       end
+    rescue JsonApiClient::Errors::ServerError => e
+      pretty_error e
     end
 
     def update_attributes(attrs = {})
       run_callbacks :update_attributes do
         self.client.update_attributes(attrs)
       end
+    rescue JsonApiClient::Errors::ServerError => e
+      pretty_error e
     end
 
     def attributes=(attr = {})
@@ -72,6 +76,9 @@ module JsonApiResource
       else
         super
       end
+
+    rescue JsonApiClient::Errors::ServerError => e
+      pretty_error e
     end
 
     def catch_errors
