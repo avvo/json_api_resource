@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "json_api_client", '~> 0.5'
   s.add_dependency "json_api_client_mock", '~> 0.2'
+  s.add_dependency "activemodel", '~> 0.2'
   
   s.add_development_dependency "webmock", '> 0'
   s.license = "MIT"

@@ -1,3 +1,6 @@
+require 'active_model/model'
+require 'active_model/validations'
+require 'active_model/callback'
 require 'json_api_client'
 
 module JsonApiResource
