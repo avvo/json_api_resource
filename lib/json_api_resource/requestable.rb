@@ -27,7 +27,7 @@ module JsonApiResource
       private
 
       def empty_set_with_errors(e)
-        case e.class
+        case e
 
         when is_a? JsonApiClient::Errors::NotFound
           error_response 404, { name: "RecordNotFound", message: e.message }
