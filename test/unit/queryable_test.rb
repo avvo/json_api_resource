@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class QueryableTest < MiniTest::Test
+class QuieriableTest < MiniTest::Test
 
   def setup
-    @resource = User.new()
+    @resource = UserResource.new({id: 1, name: "Brnadon Sislow"})
   end
 
 end

@@ -9,10 +9,15 @@ module JsonApiResource
     end
 
     module ClassMethods
-      def property(opts = {})
-        opts.each do |attr_name,default|
-          self.schema[attr_name.to_sym] = default || nil
+      def properties(opts = {})
+        self.schema = schema.dup
+        opts.each_pair do |name, default|
+          property name, default
         end
+      end
+
+      def property(name, default = nil)
+        self.schema = schema.merge name.to_sym => default
       end
     end
 

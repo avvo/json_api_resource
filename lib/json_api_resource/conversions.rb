@@ -1,17 +1,5 @@
 module JsonApiResource
   module Conversions
-    def Address(*args)
-      case args.first
-        when Address then args.first
-        when Hash then Address.new(args.first)
-        when Address.client then Address.new(args.first.attributes)
-        when Array then args.first.map { |attr| Address(attr) }
-        when Integer then Address.new(* args)
-        when String then Address.new(* args.first.split(':'). map(&:to_i))
-        else raise TypeError, "Cannot convert #{ args.inspect} to Address"
-      end
-    end
-
     def ApiErrors(*args)
       case args.first
         when ActiveModel::Errors then args.first
@@ -55,19 +43,12 @@ module JsonApiResource
       end
     end
 
-    def Symbolize(*args)
-      case args.first
-        when String then args.first.underscore.parameterize('_').to_sym
-        else args.first
-      end
-    end
-
     def ApiResource(klass, *args)
       case args.first
         when klass then args.first
         when Hash then klass.new(args.first)
-        when klass.client then klass.new(args.first.attributes)
-        when Array then args.first.map { |attr| JsonApiResource(attr, klass) }
+        when klass.client_klass then klass.new(args.first.attributes)
+        when Array then args.first.map { |attr| ApiResource(klass, attr) }
         else raise TypeError, "Cannot convert #{ args.inspect} to #{klass}"
       end
     end

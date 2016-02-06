@@ -1,3 +1,12 @@
+require 'active_support'
+require 'active_support/concern'
+require 'active_support/core_ext/module'
+require 'active_support/core_ext/class/attribute'
+require 'active_model'
+require 'active_model/model'
+require 'active_model/validations'
+require 'active_model/callbacks'
+
 module JsonApiResource
   class Resource
     include ActiveModel::Model
@@ -17,6 +26,8 @@ module JsonApiResource
     around_create :catch_errors
     around_save   :catch_errors
     around_update_attributes :catch_errors
+
+    delegate :to_json, to: :attributes
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
