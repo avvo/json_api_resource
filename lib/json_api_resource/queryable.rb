@@ -14,7 +14,7 @@ module JsonApiResource
 
       def find(id)
         return nil unless id.present?
-        results = self.client_klass.find(id).map! do |result|
+        results = self.client_class.find(id).map! do |result|
           self.new(:client => result)
         end
         results.size == 1 ? single_result(results) : results
@@ -24,13 +24,13 @@ module JsonApiResource
 
       def create(attr = {})
         run_callbacks :create do
-          new(:client => self.client_klass.create(attr))
+          new(:client => self.client_class.create(attr))
         end
       end
 
       def where(opts = {})
         opts[:per_page] = opts.fetch(:per_page, self.per_page)
-        (self.client_klass.where(opts).all).map! do |result|
+        (self.client_class.where(opts).all).map! do |result|
           self.new(:client => result)
         end
       rescue JsonApiClient::Errors::ServerError => e

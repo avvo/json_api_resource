@@ -47,7 +47,7 @@ module JsonApiResource
       case args.first
         when klass then args.first
         when Hash then klass.new(args.first)
-        when klass.client_klass then klass.new(args.first.attributes)
+        when klass.client_class then klass.new(args.first.attributes)
         when Array then args.first.map { |attr| ApiResource(klass, attr) }
         else raise TypeError, "Cannot convert #{ args.inspect} to #{klass}"
       end
