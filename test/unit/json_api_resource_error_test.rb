@@ -2,6 +2,9 @@ require 'test_helper'
 
 class JsonApiResourceErrorTest < MiniTest::Test
 
+  def teardown
+    UserResource.wraps UserClient
+  end
 
   def test_error_contains_message
     begin 
