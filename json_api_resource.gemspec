@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
 
   s.author = "Brandon Sislow"
   s.email = "brandon.silsow@gmail.com"
-  s.homepage = "http://gitlab.corp.avvo.com/api/api_resource"
+  s.homepage = "https://github.com/avvo/json_api_resource"
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir.glob('test/*_test.rb')
