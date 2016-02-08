@@ -26,6 +26,8 @@ module JsonApiResource
     attr_accessor :client, :cache_expires_in
     class_attribute :per_page
 
+    delegate :to_json, to: :attributes
+
     def initialize(opts={})
       raise( JsonApiResourceError, class: self.class, message: "A resource must have a client class" ) unless client_class.present?
 
@@ -72,7 +74,7 @@ module JsonApiResource
       end
 
     rescue JsonApiClient::Errors::ServerError => e
-      self.class.pretty_error e
+      self.class.empty_set_with_errors e
     end
 
     def self.method_missing(method, *args, &block)
@@ -91,6 +93,8 @@ module JsonApiResource
       else
         super
       end
+    rescue JsonApiClient::Errors::ServerError => e
+      empty_set_with_errors e
     end
 
     def respond_to_missing?(method_name, include_private = false)

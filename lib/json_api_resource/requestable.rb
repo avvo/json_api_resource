@@ -1,11 +1,13 @@
 module JsonApiResource
   module Requestable
+    extend ActiveModel::Callbacks
     extend ActiveSupport::Concern
+    extend ActiveSupport::Callbacks
 
     included do
-      def request(action, options = {})
+      def request(action, *args)
         # run_callbacks action
-          self.client.send(action, options).map! do |result|
+          self.client.send(action, *args).map do |result|
             new(client: result)
           end
         # end
@@ -16,16 +18,14 @@ module JsonApiResource
       end
 
       class << self
-        def request(action, options = {})
-          self.client_class.send(action, options).map! do |result|
-            new(client: result).save
+        def request(action, *args)
+          self.client_class.send(action, *args).map do |result|
+            new(client: result)
           end
         rescue JsonApiClient::Errors::ServerError => e
           empty_set_with_errors e
         end
 
-
-        private
 
         def empty_set_with_errors(e)
           case e.class.to_s
