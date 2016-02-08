@@ -3,6 +3,7 @@ PATH
   specs:
     json_api_resource (0.4.5)
       activemodel
+      activesupport
       json_api_client (~> 0.5)
       json_api_client_mock (~> 0.2)
 
@@ -35,6 +36,7 @@ GEM
       mocha
     metaclass (0.0.4)
     minitest (5.8.4)
+    minitest-stub_any_instance (1.0.1)
     mocha (1.1.0)
       metaclass (~> 0.0.1)
     multipart-post (2.0.0)
@@ -56,6 +58,7 @@ PLATFORMS
 
 DEPENDENCIES
   json_api_resource!
+  minitest-stub_any_instance
   rake
   simplecov
   webmock (> 0)

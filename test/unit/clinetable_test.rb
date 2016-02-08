@@ -3,13 +3,20 @@ require 'test_helper'
 class ClientableTest < MiniTest::Test
 
   def test_wraps_sets_client
-    assert_equal UserClient, UserResource.client_class
+    assert_equal User, UserResource.client_class
   end
 
   def test_wraps_overrides_previous_class
-    assert_equal UserClient, PropUserResource.client_class
-    PropUserResource.wraps AttributeClient
-    assert_equal AttributeClient, PropUserResource.client_class
+    assert_equal User, PropUserResource.client_class
+    PropUserResource.wraps Attribute
+    assert_equal Attribute, PropUserResource.client_class
+
+    # let's reset the client
+    UserResource.wraps User
+  end
+
+  def test_can_create_new
+
   end
 
   def test_throws_if_no_client_present

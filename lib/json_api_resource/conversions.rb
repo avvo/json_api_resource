@@ -6,6 +6,7 @@ module JsonApiResource
         when Hash then args.first
         when Array then { base: args }
         when String then { base: [args] }
+        when NilClass then { base: [[]]}
         else raise TypeError, "Cannot convert #{ args.inspect} to Error"
       end
     end

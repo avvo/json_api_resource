@@ -9,11 +9,20 @@ require 'pp'
 require 'json_api_resource'
 require 'json_api_client'
 
-class UserClient < JsonApiClient::Resource
+class User < JsonApiClient::Resource
+  class_attribute :attribute_count
+  self.attribute_count = 0
+
   self.site = "http://localhost:3000/api/1"
+
+  def no_name
+    :no_name
+  end
+
+  collection_endpoint :search, request_method: :get
 end
 
-class AttributeClient < JsonApiClient::Resource
+class Attribute < JsonApiClient::Resource
   self.site = "http://localhost:3000/api/1"
 end
 
@@ -21,11 +30,11 @@ end
 class UserResource < JsonApiResource::Resource
   class << self
     def client_class
-      UserClient
+      User
     end
 
     def schema
-      { id: 0,
+      { id: nil,
         name: ""
       }
     end
@@ -33,25 +42,29 @@ class UserResource < JsonApiResource::Resource
 end
 
 class PropUserResource < JsonApiResource::Resource
-  wraps UserClient
+  wraps User
 
-  property :id, 0
+  property :id
   property :name, ""
   property :updated_at, nil
 end
 
 class PropsUserResource < JsonApiResource::Resource
-  wraps UserClient
+  wraps User
 
-  properties  id: 0,
+  properties  id: nil,
               name: "",
               updated_at: nil
 end
 
 class PropPropsUserResource < JsonApiResource::Resource
-  wraps UserClient
+  wraps User
 
-  properties  id: 0,
+  properties  id: nil,
               name: ""
   property :updated_at
+end
+
+def raise_client_error!
+  -> (*args){ raise JsonApiClient::Errors::ServerError.new("http://localhost:3000/api/1") }
 end

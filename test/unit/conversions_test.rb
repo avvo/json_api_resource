@@ -27,7 +27,7 @@ class ConversionsTest < MiniTest::Test
 
   def test_api_errors_raises_on_garbage_input
     assert_raises TypeError do
-      ApiErrors(UserClient.new())
+      ApiErrors(User.new())
     end
   end
 
@@ -43,7 +43,7 @@ class ConversionsTest < MiniTest::Test
 
   def test_date_raises_on_garbage_input
     assert_raises TypeError do
-      Date(UserClient.new())
+      Date(User.new())
     end
   end
 
@@ -59,7 +59,7 @@ class ConversionsTest < MiniTest::Test
 
   def test_date_time_raises_on_garbage_input
     assert_raises TypeError do
-      DateTime(UserClient.new())
+      DateTime(User.new())
     end
   end
   
@@ -92,7 +92,7 @@ class ConversionsTest < MiniTest::Test
 
   def test_boolean_raises_on_garbage_input
     assert_raises TypeError do
-      Boolean(UserClient.new())
+      Boolean(User.new())
     end
   end
 
@@ -107,11 +107,11 @@ class ConversionsTest < MiniTest::Test
   end
 
   def test_api_resource_can_parse_client
-    assert_equal UserResource, ApiResource(UserResource, UserClient.new()).class
+    assert_equal UserResource, ApiResource(UserResource, User.new()).class
   end
 
   def test_api_resource_can_parse_array
-    assert_equal Array, ApiResource(UserResource, [{}, UserClient.new(), UserResource.new()]).class
+    assert_equal Array, ApiResource(UserResource, [{}, User.new(), UserResource.new()]).class
   end
 
   def test_api_resource_raises_on_garbage_input

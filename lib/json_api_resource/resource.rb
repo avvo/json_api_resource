@@ -1,4 +1,5 @@
 require 'active_support'
+require 'active_support/callbacks'
 require 'active_support/concern'
 require 'active_support/core_ext/module'
 require 'active_support/core_ext/class/attribute'
@@ -12,6 +13,8 @@ module JsonApiResource
     include ActiveModel::Model
     include ActiveModel::Validations
     extend  ActiveModel::Callbacks
+
+    extend ActiveSupport::Callbacks
 
     include JsonApiResource::Clientable
     include JsonApiResource::Schemable
@@ -50,16 +53,18 @@ module JsonApiResource
       run_callbacks :save do
         self.client.save
       end
+      self
     rescue JsonApiClient::Errors::ServerError => e
-      pretty_error e
+      self.class.pretty_error e
     end
 
     def update_attributes(attrs = {})
       run_callbacks :update_attributes do
         self.client.update_attributes(attrs)
       end
+      self
     rescue JsonApiClient::Errors::ServerError => e
-      pretty_error e
+      self.class.pretty_error e
     end
 
     def attributes=(attr = {})
@@ -77,7 +82,7 @@ module JsonApiResource
 
     def method_missing(method, *args, &block)
       if match = method.to_s.match(/^(.*=)$/)
-        self.client.send(match[1], args.first)
+        self.client.send(match[0], args.first)
       elsif self.client.respond_to?(method.to_sym)
         is_method = self.client.methods.include?(method.to_sym)
         argument_count = (is_method ? self.client.method(method.to_sym).arity : 0)
@@ -92,7 +97,7 @@ module JsonApiResource
       end
 
     rescue JsonApiClient::Errors::ServerError => e
-      pretty_error e
+      self.class.pretty_error e
     end
 
     def catch_errors
@@ -107,7 +112,7 @@ module JsonApiResource
 
     def self.method_missing(method, *args, &block)
       if match = method.to_s.match(/^(.*)=$/)
-        self.client_class.send(match[1], args.first)
+        self.client_class.send(match[0], args.first)
       
       elsif self.client_class.respond_to?(method.to_sym)
         results = self.client_class.send(method, *args)
@@ -123,7 +128,7 @@ module JsonApiResource
       end
 
     rescue JsonApiClient::Errors::ServerError => e
-      pretty_error e
+      self.pretty_error e
     end
 
     def respond_to_missing?(method_name, include_private = false)
