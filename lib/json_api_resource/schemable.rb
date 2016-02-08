@@ -6,21 +6,19 @@ module JsonApiResource
     included do
       class_attribute :schema
       self.schema = {}
-    end
+      
+      class << self
+        def properties(opts = {})
+          self.schema = schema.dup
+          opts.each_pair do |name, default|
+            property name, default
+          end
+        end
 
-    module ClassMethods
-      def property(opts = {})
-        opts.each do |attr_name,default|
-          self.schema[attr_name.to_sym] = default || nil
+        def property(name, default = nil)
+          self.schema = schema.merge name.to_sym => default
         end
       end
     end
-
-    protected
-
-    def load_schema
-      self.client = self.client_klass.new(self.schema)
-    end
-
   end
 end

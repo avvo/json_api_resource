@@ -4,10 +4,6 @@ module JsonApiResource
       attr_accessor :result
 
       def initialize(results)
-        simplify!(results)
-      end
-
-      def simplify!(results)
         result = results.first
 
         result.meta = results.meta

@@ -2,38 +2,35 @@ module JsonApiResource
   module Queryable
     extend ActiveSupport::Concern
 
-    attr_accessor :meta
-    attr_accessor :linked_data
-    attr_accessor :errors
+    included do
 
-    define_model_callbacks :save, :create, :update_attributes
+      define_model_callbacks :save, :update_attributes
 
-    around_create :catch_errors
-    around_save   :catch_errors
-    around_update_attributes :catch_errors
+      around_save   :catch_errors
+      around_update_attributes :catch_errors
 
-    module ClassMethods
+      class << self
 
-      include JsonApiResource::Conversions
+        MAX_PAGES_FOR_ALL = 25
 
-      def find(id)
-        return nil unless id.present?
+        def find(id)
+          return nil unless id.present?
 
-        results = request(:find, id: id)
-        JsonApiResource::Handlers::FindHandler.new(results).results # <= <#JsonApiclient::ResultSet @errors => <...>, @data => <...>, @linked_data => <...>>
+          results = request(:find, id: id)
+          JsonApiResource::Handlers::FindHandler.new(results).results # <= <#JsonApiclient::ResultSet @errors => <...>, @data => <...>, @linked_data => <...>>
+        end
+
+        def create(opts = {})
+          new.save
+        end
+
+        def where(opts = {})
+          opts[:per_page] = opts.fetch(:per_page, self.per_page)
+          request(:where, opts).result_set
+        end
       end
 
-      def create(opts = {})
-        request(:create, opts)
-      end
-
-      def where(opts = {})
-        opts[:per_page] = opts.fetch(:per_page, self.per_page)
-        request(:where, opts).result_set
-      end
-    end
-
-    module InstanceMethods
+      
       def save
         request :save
       end
@@ -54,7 +51,7 @@ module JsonApiResource
           self.errors.add(k.to_sym, Array(messages).join(', '))
         end
         self.errors
-      end    
+      end
     end
   end
 end
