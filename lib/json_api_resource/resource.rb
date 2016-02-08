@@ -25,9 +25,8 @@ module JsonApiResource
     attr_accessor :client, :cache_expires_in
     class_attribute :per_page
 
-    define_model_callbacks :save, :create, :update_attributes
+    define_model_callbacks :save, :update_attributes
 
-    around_create :catch_errors
     around_save   :catch_errors
     around_update_attributes :catch_errors
 
