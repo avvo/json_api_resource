@@ -12,7 +12,7 @@ module JsonApiResource
         self
 
       rescue JsonApiClient::Errors::ServerError => e
-        add_error(e)
+        add_error e
       end
 
       class << self
@@ -30,18 +30,23 @@ module JsonApiResource
           empty_set_with_errors e
         end
 
-
         def empty_set_with_errors(e)
+          append_errors e do |status, error|
+            error_response status, error
+          end
+        end
+
+        def append_errors(e, &block)
           case e.class.to_s
 
           when "JsonApiClient::Errors::NotFound"
-            error_response 404, { name: "RecordNotFound", message: e.message }
+            yield 404, { name: "RecordNotFound", message: e.message }
 
           when "JsonApiClient::Errors::UnexpectedStatus"
-            error_response e.code, { name: "UnexpectedStatus", message: e.message }
+            yield e.code, { name: "UnexpectedStatus", message: e.message }
 
           else
-            error_response 500, { name: "ServerError", message: e.message }
+            yield 500, { name: "ServerError", message: e.message }
           end
         end
 
@@ -57,17 +62,9 @@ module JsonApiResource
         end
       end
 
-      def add_error(e)
-        case e.class.to_s
-
-        when "JsonApiClient::Errors::NotFound"
-          errors.add( "RecordNotFound", e.message )
-
-        when "JsonApiClient::Errors::UnexpectedStatus"
-          errors.add( "UnexpectedStatus", e.message )
-
-        else
-          errors.add( "ServerError", e.message )
+      def add_error(e, &block)
+        self.class.append_errors e do |status, error|
+          errors.add error[:name], error[:message]
         end
       end
     end

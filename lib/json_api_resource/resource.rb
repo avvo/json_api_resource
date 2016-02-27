@@ -67,7 +67,7 @@ module JsonApiResource
       end
 
     rescue JsonApiClient::Errors::ServerError => e
-      add_error(e)
+      add_error e
     rescue ArgumentError => e
       raise JsonApiResourceError, class: self.class, message: "#{method}: #{e.message}"
     end

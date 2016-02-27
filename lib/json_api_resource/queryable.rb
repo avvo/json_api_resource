@@ -31,10 +31,6 @@ module JsonApiResource
         request :save
       end
 
-      def count
-        request :count
-      end
-
       def update_attributes(attrs = {})
         request :update_attributes, attrs
       end
