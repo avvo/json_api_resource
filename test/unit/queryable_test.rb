@@ -17,14 +17,6 @@ class QuieriableTest < MiniTest::Test
     end
   end
 
-  def test_client_can_run_create
-    User.stub_any_instance :save, User.new() do
-      result = UserResource.create
-      refute_nil result
-      assert_equal UserResource, result.class
-    end
-  end
-
   def test_client_can_run_find
     User.stub :find, JsonApiClient::ResultSet.new([User.new()]) do
       result = UserResource.find 6

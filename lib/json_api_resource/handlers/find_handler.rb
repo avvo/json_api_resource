@@ -4,11 +4,11 @@ module JsonApiResource
       attr_accessor :result
 
       def initialize(results)
-        result = results.first
+        self.result = results.first
 
-        result.meta = results.meta
+        self.result.meta = results.meta
 
-        result.linked_data = results.try(:linked_data)
+        self.result.linked_data = results.try(:linked_data)
       end
     end
   end

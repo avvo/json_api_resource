@@ -18,8 +18,8 @@ module JsonApiResource
 
     include JsonApiResource::Clientable
     include JsonApiResource::Schemable
-    include JsonApiResource::Requestable
     include JsonApiResource::Queryable
+    include JsonApiResource::Requestable
     include JsonApiResource::Conversions
     include JsonApiResource::Cacheable
 
@@ -59,22 +59,17 @@ module JsonApiResource
 
     def method_missing(method, *args, &block)
       if match = method.to_s.match(/^(.*=)$/)
-        self.client.send(match[1], args.first)
+        self.client.send(match[0], args.first)
       elsif self.client.respond_to?(method.to_sym)
-        is_method = self.client.methods.include?(method.to_sym)
-        argument_count = (is_method ? self.client.method(method.to_sym).arity : 0)
-        argument_count = args.length if argument_count == -1
-        if (argument_count == 0) || args.blank?
-          self.client.send(method)
-        else
-          self.client.send(method, *args.take(argument_count))
-        end
+        self.client.send(method, *args)
       else
         super
       end
 
     rescue JsonApiClient::Errors::ServerError => e
-      self.class.empty_set_with_errors e
+      add_error(e)
+    rescue ArgumentError => e
+      raise JsonApiResourceError, class: self.class, message: "#{method}: #{e.message}"
     end
 
     def self.method_missing(method, *args, &block)
@@ -85,16 +80,20 @@ module JsonApiResource
         results = self.client_class.send(method, *args)
 
         if results.is_a? JsonApiClient::ResultSet
-          results.map do |result|
+          results = results.map do |result|
             self.new(:client => result)
           end
         end
+
+        results
 
       else
         super
       end
     rescue JsonApiClient::Errors::ServerError => e
       empty_set_with_errors e
+    rescue ArgumentError => e
+      raise JsonApiResourceError, class: self, message: "#{method}: #{e.message}"
     end
 
     def respond_to_missing?(method_name, include_private = false)

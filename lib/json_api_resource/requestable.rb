@@ -6,22 +6,26 @@ module JsonApiResource
 
     included do
       def request(action, *args)
-        # run_callbacks action
-          self.client.send(action, *args).map do |result|
-            new(client: result)
-          end
-        # end
+        run_callbacks action do
+          self.client.send(action, *args)
+        end
         self
 
       rescue JsonApiClient::Errors::ServerError => e
-        self.class.empty_set_with_errors e
+        add_error(e)
       end
 
       class << self
         def request(action, *args)
-          self.client_class.send(action, *args).map do |result|
-            new(client: result)
-          end
+          result = self.client_class.send(action, *args)
+          
+          result = result.all if result.is_a? JsonApiClient::Scope
+          
+          JsonApiClient::ResultSet.new(
+            result.map do |result|
+              new(client: result)
+            end
+          )
         rescue JsonApiClient::Errors::ServerError => e
           empty_set_with_errors e
         end
@@ -50,6 +54,20 @@ module JsonApiResource
           result.errors.add(error[:name], Array(error[:message]).join(', '))
 
           result
+        end
+      end
+
+      def add_error(e)
+        case e.class.to_s
+
+        when "JsonApiClient::Errors::NotFound"
+          errors.add( "RecordNotFound", e.message )
+
+        when "JsonApiClient::Errors::UnexpectedStatus"
+          errors.add( "UnexpectedStatus", e.message )
+
+        else
+          errors.add( "ServerError", e.message )
         end
       end
     end

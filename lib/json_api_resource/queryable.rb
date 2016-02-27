@@ -17,16 +17,12 @@ module JsonApiResource
           return nil unless id.present?
 
           results = request(:find, id: id)
-          JsonApiResource::Handlers::FindHandler.new(results).results # <= <#JsonApiclient::ResultSet @errors => <...>, @data => <...>, @linked_data => <...>>
-        end
-
-        def create(opts = {})
-          new.save
+          JsonApiResource::Handlers::FindHandler.new(results).result # <= <#JsonApiclient::ResultSet @errors => <...>, @data => <...>, @linked_data => <...>>
         end
 
         def where(opts = {})
           opts[:per_page] = opts.fetch(:per_page, self.per_page)
-          request(:where, opts).result_set
+          request(:where, opts)
         end
       end
 
