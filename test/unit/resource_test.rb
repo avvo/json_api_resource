@@ -56,6 +56,28 @@ class ResourceTest < MiniTest::Test
     assert_equal UserResource.attribute_count, User.attribute_count
   end
 
+  def test_method_missing_handles_argument_errors
+    assert_raises JsonApiResource::JsonApiResourceError do
+      UserResource.site 6
+    end
+
+    begin
+      UserResource.site 6
+    rescue => e
+      assert_equal "UserResource: site: wrong number of arguments (1 for 0)", e.message
+    end
+
+    assert_raises JsonApiResource::JsonApiResourceError do
+      @resource.no_name 6
+    end
+
+    begin
+      @resource.no_name 6
+    rescue => e
+      assert_equal "UserResource: no_name: wrong number of arguments (1 for 0)", e.message
+    end
+  end
+
   def test_respond_to_method_missing_falls_through_to_client
     assert UserResource.respond_to? :site
     assert UserResource.method :site
@@ -65,22 +87,22 @@ class ResourceTest < MiniTest::Test
 
   def test_client_errors_are_handled_on_save
     @resource.client.stub :save, raise_client_error! do
-      response = @resource.save
-      assert_equal( { ServerError: ["Internal server error at: http://localhost:3000/api/1"] }, response.errors.messages )
+      @resource.save
+      assert_equal( { ServerError: ["Internal server error at: http://localhost:3000/api/1"] }, @resource.errors.messages )
     end
   end
 
   def test_client_errors_are_handled_on_update
     @resource.client.stub :update_attributes, raise_client_error! do
-      response = @resource.update_attributes id: -5
-      assert_equal( { ServerError: ["Internal server error at: http://localhost:3000/api/1"] }, response.errors.messages )
+      @resource.update_attributes id: -5
+      assert_equal( { ServerError: ["Internal server error at: http://localhost:3000/api/1"] }, @resource.errors.messages )
     end
   end
 
-   def test_client_errors_are_handled_method_missing
-     @resource.client.stub :no_name, raise_client_error! do
-      response = @resource.no_name
-      assert_equal( { ServerError: ["Internal server error at: http://localhost:3000/api/1"] }, response.errors.messages )
+  def test_client_errors_are_handled_method_missing
+    @resource.client.stub :no_name, raise_client_error! do
+      @resource.no_name
+      assert_equal( { ServerError: ["Internal server error at: http://localhost:3000/api/1"] }, @resource.errors.messages )
     end
 
     User.stub :attribute_count, raise_client_error! do

@@ -25,6 +25,11 @@ class ConversionsTest < MiniTest::Test
     assert_equal( { base: [[errors]] }, ApiErrors(errors) )
   end
 
+  def test_api_errors_can_parse_nil
+    errors = nil
+    assert_equal( { base: [[]] }, ApiErrors(errors) )
+  end
+
   def test_api_errors_raises_on_garbage_input
     assert_raises TypeError do
       ApiErrors(User.new())
