@@ -24,5 +24,12 @@ class QuieriableTest < MiniTest::Test
       assert_equal UserResource, result.class
     end
   end
+
+  def test_client_errors_are_handled_on_class_level_client_call
+    User.stub :find, raise_client_error! do
+      response = UserResource.where id: -5
+      assert_equal( { ServerError: ["Internal server error at: http://localhost:3000/api/1"] }, response.errors.messages )
+    end
+  end
 end
 
