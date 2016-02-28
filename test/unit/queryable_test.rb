@@ -17,6 +17,16 @@ class QuieriableTest < MiniTest::Test
     end
   end
 
+  def test_class_client_calls_perserve_meta
+    User.stub :where, JsonApiClient::Scope.new(id: 6) do
+      User.where.stub :all, JsonApiClient::ResultSet.new([User.new()]) do
+        result = UserResource.where id: 6
+        assert_equal JsonApiClient::ResultSet, result.class
+      end
+    end
+  end
+
+
   def test_client_can_run_find
     User.stub :find, JsonApiClient::ResultSet.new([User.new()]) do
       result = UserResource.find 6

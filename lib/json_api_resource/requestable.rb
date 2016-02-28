@@ -21,11 +21,10 @@ module JsonApiResource
           
           result = result.all if result.is_a? JsonApiClient::Scope
           
-          JsonApiClient::ResultSet.new(
-            result.map do |result|
-              new(client: result)
-            end
-          )
+          result.map! do |result|
+            new(client: result)
+          end
+          
         rescue JsonApiClient::Errors::ServerError => e
           empty_set_with_errors e
         end
