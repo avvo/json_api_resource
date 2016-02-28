@@ -80,7 +80,7 @@ module JsonApiResource
         results = self.client_class.send(method, *args)
 
         if results.is_a? JsonApiClient::ResultSet
-          results = results.map do |result|
+          results.map! do |result|
             self.new(:client => result)
           end
         end

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    json_api_resource (1.0.0)
+    json_api_resource (1.0.1)
       activemodel
       activesupport
       json_api_client (~> 0.5)

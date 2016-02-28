@@ -56,6 +56,13 @@ class ResourceTest < MiniTest::Test
     assert_equal UserResource.attribute_count, User.attribute_count
   end
 
+  def test_method_missing_preserves_meta
+    User.stub :search, JsonApiClient::ResultSet.new([User.new()]) do
+      result = UserResource.search q: :dui
+      assert_equal JsonApiClient::ResultSet, result.class
+    end
+  end
+
   def test_method_missing_handles_argument_errors
     assert_raises JsonApiResource::JsonApiResourceError do
       UserResource.site 6
