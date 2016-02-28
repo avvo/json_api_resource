@@ -44,7 +44,7 @@ class ResourceTest < MiniTest::Test
     assert_equal User.site, UserResource.site
     assert_equal :no_name, @resource.no_name
 
-    User.stub :search, JsonApiClient::ResultSet.new([User.new()]) do
+    User.stub :search, JsonApiResource::ResultSet.new([User.new()]) do
       result = UserResource.search id: 6
       refute_empty result
       assert_equal 1, result.count
@@ -57,9 +57,9 @@ class ResourceTest < MiniTest::Test
   end
 
   def test_method_missing_preserves_meta
-    User.stub :search, JsonApiClient::ResultSet.new([User.new()]) do
+    User.stub :search, JsonApiResource::ResultSet.new([User.new()]) do
       result = UserResource.search q: :dui
-      assert_equal JsonApiClient::ResultSet, result.class
+      assert_equal JsonApiResource::ResultSet, result.class
     end
   end
 

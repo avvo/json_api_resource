@@ -8,7 +8,7 @@ class QuieriableTest < MiniTest::Test
 
   def test_client_can_run_where
     User.stub :where, JsonApiClient::Scope.new(id: 6) do
-      User.where.stub :all, JsonApiClient::ResultSet.new([User.new()]) do
+      User.where.stub :all, JsonApiResource::ResultSet.new([User.new()]) do
         result = UserResource.where id: 6
         refute_empty result
         assert_equal 1, result.count
@@ -19,16 +19,16 @@ class QuieriableTest < MiniTest::Test
 
   def test_class_client_calls_perserve_meta
     User.stub :where, JsonApiClient::Scope.new(id: 6) do
-      User.where.stub :all, JsonApiClient::ResultSet.new([User.new()]) do
+      User.where.stub :all, JsonApiResource::ResultSet.new([User.new()]) do
         result = UserResource.where id: 6
-        assert_equal JsonApiClient::ResultSet, result.class
+        assert_equal JsonApiResource::ResultSet, result.class
       end
     end
   end
 
 
   def test_client_can_run_find
-    User.stub :find, JsonApiClient::ResultSet.new([User.new()]) do
+    User.stub :find, JsonApiResource::ResultSet.new([User.new()]) do
       result = UserResource.find 6
       refute_nil result
       assert_equal UserResource, result.class

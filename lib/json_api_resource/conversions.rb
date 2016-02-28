@@ -31,6 +31,7 @@ module JsonApiResource
       case args.first
         when FalseClass then args.first
         when TrueClass then args.first
+        when NilClass then false
         when String
           if %w(true 1).include?(args.first.downcase)
             true
@@ -51,6 +52,14 @@ module JsonApiResource
         when klass.client_class then klass.new(args.first.attributes)
         when Array then args.first.map { |attr| ApiResource(klass, attr) }
         else raise TypeError, "Cannot convert #{ args.inspect} to #{klass}"
+      end
+    end
+
+    def ResultSet(*args)
+      case args.first
+        when JsonApiClient::ResultSet then JsonApiResource::ResultSet.build(args.first)
+        when Array then JsonApiResource::ResultSet.build(JsonApiClient::ResultSet.new(args.first))
+        else raise TypeError, "Cannot convert #{ args.inspect} to ResultSet"
       end
     end
   end

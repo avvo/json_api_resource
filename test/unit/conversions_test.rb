@@ -74,6 +74,10 @@ class ConversionsTest < MiniTest::Test
     assert_equal true, Boolean(true)
     assert_equal false, Boolean(false)
   end
+  
+  def test_boolean_can_parse_nil
+    assert_equal false, Boolean(nil)
+  end
 
   def test_boolean_can_parse_string
     assert_equal true, Boolean("true")
@@ -125,4 +129,19 @@ class ConversionsTest < MiniTest::Test
     end
   end
 
+#------------- ResultSet -------------
+
+  def test_result_set_can_parse_client_set
+    assert_equal JsonApiResource::ResultSet, ResultSet(JsonApiClient::ResultSet.new).class
+  end
+
+  def test_result_set_can_parse_array
+    assert_equal JsonApiResource::ResultSet, ResultSet([]).class
+  end
+
+  def test_result_set_raises_on_garbage_input
+    assert_raises TypeError do
+      ResultSet(UserResource, "LOL NOT A RESOURCE")
+    end
+  end
 end

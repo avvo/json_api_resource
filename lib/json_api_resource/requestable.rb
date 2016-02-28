@@ -21,17 +21,27 @@ module JsonApiResource
           
           result = result.all if result.is_a? JsonApiClient::Scope
           
-          result.map! do |result|
-            new(client: result)
-          end
+          JsonApiResource::ResultSet.build( result.map! do |result|
+                       new(client: result)
+                     end )
           
         rescue JsonApiClient::Errors::ServerError => e
-          empty_set_with_errors e
+          server_error_response e, action, *args
         end
 
-        def empty_set_with_errors(e)
-          append_errors e do |status, error|
+        def server_error_response(e, action, *args)
+          response = append_errors e do |status, error|
             error_response status, error
+          end
+
+          _fallbacks.each do |fallback|
+            # only try to populate data if the set is blank
+            unless response.using_fallback?
+              # try to populate the data for the current action
+              response << fallback.data_for(action, *args)
+              # set fallback actuve flag to prevent lower-level fallbacks from adding data
+              response._active_fallback = fallback unless response.empty?
+            end
           end
         end
 
@@ -50,7 +60,7 @@ module JsonApiResource
         end
 
         def error_response(status, error)
-          result = JsonApiClient::ResultSet.new
+          result = JsonApiResource::ResultSet.new
 
           result.meta = {status: status}
 

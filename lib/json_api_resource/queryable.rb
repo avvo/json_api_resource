@@ -17,7 +17,7 @@ module JsonApiResource
           return nil unless id.present?
 
           results = request(:find, id: id)
-          JsonApiResource::Handlers::FindHandler.new(results).result # <= <#JsonApiclient::ResultSet @errors => <...>, @data => <...>, @linked_data => <...>>
+          JsonApiResource::Handlers::FindHandler.new(results).result
         end
 
         def where(opts = {})

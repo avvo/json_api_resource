@@ -22,6 +22,8 @@ module JsonApiResource
     include JsonApiResource::Requestable
     include JsonApiResource::Conversions
     include JsonApiResource::Cacheable
+    include JsonApiResource::Fallbackable
+    include JsonApiResource::FallbackDefinable
 
     attr_accessor :client, :cache_expires_in
     class_attribute :per_page
@@ -80,9 +82,9 @@ module JsonApiResource
         results = self.client_class.send(method, *args)
 
         if results.is_a? JsonApiClient::ResultSet
-          results.map! do |result|
-            self.new(:client => result)
-          end
+          results = JsonApiResource::ResultSet.build(results.map! do |result|
+                       self.new(:client => result)
+                     end)
         end
 
         results
@@ -91,7 +93,7 @@ module JsonApiResource
         super
       end
     rescue JsonApiClient::Errors::ServerError => e
-      empty_set_with_errors e
+      server_error_response e, method, *args
     rescue ArgumentError => e
       raise JsonApiResourceError, class: self, message: "#{method}: #{e.message}"
     end
