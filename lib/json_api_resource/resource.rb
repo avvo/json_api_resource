@@ -19,7 +19,7 @@ module JsonApiResource
     include JsonApiResource::Clientable
     include JsonApiResource::Schemable
     include JsonApiResource::Queryable
-    include JsonApiResource::Requestable
+    include JsonApiResource::Executable
     include JsonApiResource::Conversions
     include JsonApiResource::Cacheable
 
@@ -61,15 +61,10 @@ module JsonApiResource
       if match = method.to_s.match(/^(.*=)$/)
         self.client.send(match[0], args.first)
       elsif self.client.respond_to?(method.to_sym)
-        self.client.send(method, *args)
+        Connections::ServerConnection.new( client: self.client ).execute( method, *args ).data
       else
         super
       end
-
-    rescue JsonApiClient::Errors::ServerError => e
-      add_error e
-    rescue ArgumentError => e
-      raise JsonApiResourceError, class: self.class, message: "#{method}: #{e.message}"
     end
 
     def self.method_missing(method, *args, &block)
@@ -77,7 +72,7 @@ module JsonApiResource
         self.client_class.send(match[0], args.first)
        
       elsif self.client_class.respond_to?(method.to_sym)
-        results = self.client_class.send(method, *args)
+        results = request(method, *args).data
 
         if results.is_a? JsonApiClient::ResultSet
           results.map! do |result|
@@ -86,14 +81,11 @@ module JsonApiResource
         end
 
         results
-
       else
         super
       end
-    rescue JsonApiClient::Errors::ServerError => e
-      empty_set_with_errors e
-    rescue ArgumentError => e
-      raise JsonApiResourceError, class: self, message: "#{method}: #{e.message}"
+    rescue Multiconnect::Error::UnsuccessfulRequestError => e
+      nil
     end
 
     def respond_to_missing?(method_name, include_private = false)

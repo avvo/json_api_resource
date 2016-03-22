@@ -16,23 +16,23 @@ module JsonApiResource
         def find(id)
           return nil unless id.present?
 
-          results = request(:find, id: id)
+          results = execute(:find, id: id)
           JsonApiResource::Handlers::FindHandler.new(results).result # <= <#JsonApiclient::ResultSet @errors => <...>, @data => <...>, @linked_data => <...>>
         end
 
         def where(opts = {})
           opts[:per_page] = opts.fetch(:per_page, self.per_page)
-          request(:where, opts)
+          execute(:where, opts)
         end
       end
 
       
       def save
-        request :save
+        execute :save
       end
 
       def update_attributes(attrs = {})
-        request :update_attributes, attrs
+        execute :update_attributes, attrs
       end
 
       def catch_errors

@@ -28,10 +28,9 @@ end
 
 # old model. Let's keep some backwards compat? maybe?
 class UserResource < JsonApiResource::Resource
+  wraps User
+  
   class << self
-    def client_class
-      User
-    end
 
     def schema
       { id: nil,
