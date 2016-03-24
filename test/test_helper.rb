@@ -16,7 +16,7 @@ class User < JsonApiClient::Resource
   self.site = "http://localhost:3000/api/1"
 
   def no_name
-    :no_name
+    "no_name"
   end
 
   collection_endpoint :search, request_method: :get

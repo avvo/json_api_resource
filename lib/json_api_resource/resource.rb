@@ -34,6 +34,7 @@ module JsonApiResource
       self.client = self.client_class.new(self.schema)
       self.errors = ActiveModel::Errors.new(self)
       self.attributes = opts
+      self.populate_missing_fields
     end
 
     def new_record?
@@ -61,7 +62,7 @@ module JsonApiResource
       if match = method.to_s.match(/^(.*=)$/)
         self.client.send(match[0], args.first)
       elsif self.client.respond_to?(method.to_sym)
-        Connections::ServerConnection.new( client: self.client ).execute( method, *args ).data
+        Connections::ServerConnection.new( client: self.client ).execute( method, *args )
       else
         super
       end
@@ -72,7 +73,7 @@ module JsonApiResource
         self.client_class.send(match[0], args.first)
        
       elsif self.client_class.respond_to?(method.to_sym)
-        results = request(method, *args).data
+        results = request(method, *args)
 
         if results.is_a? JsonApiClient::ResultSet
           results.map! do |result|

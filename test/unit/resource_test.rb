@@ -42,7 +42,7 @@ class ResourceTest < MiniTest::Test
 
   def test_method_missing_falls_through_to_client
     assert_equal User.site, UserResource.site
-    assert_equal :no_name, @resource.no_name
+    assert_equal "no_name", @resource.no_name
 
     User.stub :search, JsonApiClient::ResultSet.new([User.new()]) do
       result = UserResource.search id: 6
