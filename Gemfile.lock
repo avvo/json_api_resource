@@ -40,7 +40,7 @@ GEM
     minitest-stub_any_instance (1.0.1)
     mocha (1.1.0)
       metaclass (~> 0.0.1)
-    multiconnect (0.1.6)
+    multiconnect (0.1.7)
       activesupport
     multipart-post (2.0.0)
     rake (0.9.4)

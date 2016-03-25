@@ -1,9 +1,15 @@
 module JsonApiResource
   module Connections
     class ServerConnection < Multiconnect::Connection::Base
+      include Keyable
+
+      class << self
+        attr_accessor :cache
+      end
 
       def initialize(options)
         super options
+        @caching    = options.fetch :caching, true
         @responding = true
         @timeout    = Time.now
       end
@@ -19,7 +25,12 @@ module JsonApiResource
           if result.is_a? JsonApiClient::Scope
             result = result.all
           end
-          
+
+          if cache?
+            key cache_key(client, action, args)
+            cache.cache_result key, result
+          end
+
           @responding = true
 
           result
@@ -54,6 +65,14 @@ module JsonApiResource
 
       def ready_for_request?
         @responding || Time.now > @timeout
+      end
+
+      def cache
+        self.class.cache
+      end
+
+      def cache?
+        @caching && cache.present?
       end
     end
   end
