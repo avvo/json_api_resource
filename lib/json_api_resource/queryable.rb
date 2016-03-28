@@ -23,10 +23,7 @@ module JsonApiResource
       end
 
       def create(attr = {})
-        run_callbacks :create do
-          new(:client => self.client_klass.create(attr))
-          self.meta = self.client.last_request_meta
-        end
+        new(:client => self.client_klass.create(attr))
       end
 
       def where(opts = {})
