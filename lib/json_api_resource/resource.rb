@@ -12,11 +12,10 @@ module JsonApiResource
     attr_accessor :client, :cache_expires_in
     class_attribute :client_klass, :per_page
 
-    define_model_callbacks :save, :create, :update_attributes
+    define_model_callbacks :save, :update_attributes
 
-    around_create :catch_errors
-    around_save   :catch_errors
-    around_update_attributes :catch_errors
+    around_save :update_meta
+    around_update_attributes :update_meta
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
@@ -81,7 +80,7 @@ module JsonApiResource
       pretty_error e
     end
 
-    def catch_errors
+    def update_meta
       yield
 
       self.errors ||= ActiveModel::Errors.new(self)
@@ -89,6 +88,8 @@ module JsonApiResource
         self.errors.add(k.to_sym, Array(messages).join(', '))
       end
       self.errors
+
+      self.meta = self.client.last_request_meta
     end
 
     def self.method_missing(method, *args, &block)
