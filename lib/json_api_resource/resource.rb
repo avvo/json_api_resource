@@ -14,8 +14,8 @@ module JsonApiResource
 
     define_model_callbacks :save, :update_attributes
 
-    around_save   :catch_errors
-    around_update_attributes :catch_errors
+    around_save :update_meta
+    around_update_attributes :update_meta
 
     def initialize(opts={})
       self.client = self.client_klass.new(self.schema)
@@ -34,7 +34,6 @@ module JsonApiResource
     def save
       run_callbacks :save do
         self.client.save
-        self.meta = self.client.last_request_meta
       end
     rescue JsonApiClient::Errors::ServerError => e
       pretty_error e
@@ -43,7 +42,6 @@ module JsonApiResource
     def update_attributes(attrs = {})
       run_callbacks :update_attributes do
         self.client.update_attributes(attrs)
-        self.meta = self.client.last_request_meta
       end
     rescue JsonApiClient::Errors::ServerError => e
       pretty_error e
@@ -82,7 +80,7 @@ module JsonApiResource
       pretty_error e
     end
 
-    def catch_errors
+    def update_meta
       yield
 
       self.errors ||= ActiveModel::Errors.new(self)
@@ -90,6 +88,8 @@ module JsonApiResource
         self.errors.add(k.to_sym, Array(messages).join(', '))
       end
       self.errors
+
+      self.meta = self.client.last_request_meta
     end
 
     def self.method_missing(method, *args, &block)
