@@ -23,7 +23,7 @@ module JsonApiResource
       end
 
       def create(attr = {})
-        new(:client => self.client_klass.create(attr))
+        new(:client => self.client_klass.create(attr)).save
       end
 
       def where(opts = {})
