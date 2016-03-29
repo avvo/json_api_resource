@@ -6,8 +6,8 @@ module JsonApiResource
 
       define_model_callbacks :save, :update_attributes
 
-      around_save   :catch_errors
-      around_update_attributes :catch_errors
+      around_save   :update_meta
+      around_update_attributes :update_meta
 
       class << self
 
@@ -35,7 +35,7 @@ module JsonApiResource
         execute :update_attributes, attrs
       end
 
-      def catch_errors
+      def update_meta
         yield
 
         self.errors ||= ActiveModel::Errors.new(self)
@@ -43,6 +43,8 @@ module JsonApiResource
           self.errors.add(k.to_sym, Array(messages).join(', '))
         end
         self.errors
+
+        self.meta = self.client.last_request_meta
       end
     end
   end

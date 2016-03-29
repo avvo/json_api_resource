@@ -3,48 +3,46 @@ module JsonApiResource
     class ServerConnection < Multiconnect::Connection::Base
       include Keyable
 
-      class << self
-        attr_accessor :cache
-      end
+      class_attribute :cache
+      class_attribute :cache_processor
+      class_attribute :error_notifier
+
+      self.cache_processor = ::JsonApiResource::CacheProcessor::Base
 
       def initialize(options)
         super options
-        @caching    = options.fetch :caching, true
-        @responding = true
-        @timeout    = Time.now
+        @caching            = options.fetch :caching, true
+        @responding         = true
+        @timeout            = Time.now
       end
 
       def report_error( e )
-
+        puts e
+        unless i.is_a? ServerNotReadyError
+          error_notifier.notify( self, e ) if error_notifier.present?
+        end
       end
 
       def request( action, *args )
         if ready_for_request?
-          result = self.client.send action, *args
+          
+          result = client_request(action, *args)
 
-          if result.is_a? JsonApiClient::Scope
-            result = result.all
-          end
-
-          if cache?
-            key cache_key(client, action, args)
-            cache.cache_result key, result
-          end
+          cache(action, args, result) if cache?
 
           @responding = true
 
           result
 
         else
-          raise "fall through!"
+          raise ServerNotReadyError
         end
 
-      rescue JsonApiClient::Errors::NotFund => e
+      rescue JsonApiClient::Errors::NotFound => e
         empty_set_with_errors e
       rescue => e
         @responding = false
-        # default circuit broken for 30 seconds. This should probably be 1 - 2 - 5 - 15 - 30 - 1 min - 2 min*
-        @timeout = Time.now + 30.seconds
+        @timeout = timeout
 
         # propagate the error up to be handled by Connection::Base
         raise e
@@ -63,16 +61,36 @@ module JsonApiResource
 
       private
 
+      def timeout
+        # default circuit broken for 30 seconds. 
+        # This should probably be 1 - 2 - 5 - 15 - 30 - 1 min *
+        Time.now + 30.seconds
+      end
+
       def ready_for_request?
         @responding || Time.now > @timeout
       end
 
-      def cache
-        self.class.cache
-      end
-
       def cache?
         @caching && cache.present?
+      end
+
+      def cache(action, args, result)
+        key = cache_key(client, action, args)
+
+        processed_result = cache_processor.process action, args, result
+
+        self.class.cache.write key, processed_result
+      end
+
+      def client_request(action, *args)
+        result = self.client.send action, *args
+
+        if result.is_a? JsonApiClient::Scope
+          result = result.all
+        end
+
+        result
       end
     end
   end
