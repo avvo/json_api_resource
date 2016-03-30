@@ -15,7 +15,7 @@ module JsonApiResource
         class_attribute :_fallbacks
         self._fallbacks = []
 
-        def fallback_to_cache_on(actions)
+        def cache(actions)
           self._fallbacks = _fallbacks + Array(actions)
           add_connection Connections::CacheFallbackConnection client: self.client_class, only: self._fallbacks
         end

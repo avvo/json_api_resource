@@ -12,12 +12,10 @@ module JsonApiResource
       def initialize(options)
         super options
         @caching            = options.fetch :caching, true
-        @responding         = true
         @timeout            = Time.now
       end
 
       def report_error( e )
-        puts e
         unless i.is_a? ServerNotReadyError
           error_notifier.notify( self, e ) if error_notifier.present?
         end
@@ -28,9 +26,7 @@ module JsonApiResource
           
           result = client_request(action, *args)
 
-          cache(action, args, result) if cache?
-
-          @responding = true
+          cache(action, args, result) if cache_processor.cache?(action)
 
           result
 
@@ -41,7 +37,6 @@ module JsonApiResource
       rescue JsonApiClient::Errors::NotFound => e
         empty_set_with_errors e
       rescue => e
-        @responding = false
         @timeout = timeout
 
         # propagate the error up to be handled by Connection::Base
@@ -68,7 +63,7 @@ module JsonApiResource
       end
 
       def ready_for_request?
-        @responding || Time.now > @timeout
+        Time.now > @timeout
       end
 
       def cache?
@@ -78,9 +73,11 @@ module JsonApiResource
       def cache(action, args, result)
         key = cache_key(client, action, args)
 
-        processed_result = cache_processor.process action, args, result
+        if cache_processor.present?
+          result = cache_processor.process action, args, result
+        end
 
-        self.class.cache.write key, processed_result
+        self.class.cache.write key, result
       end
 
       def client_request(action, *args)

@@ -1,7 +1,8 @@
 module JsonApiResource
   module Connections
-    class CacheFallbackConnection < Multiconnect::Connection::Base
-
+    class CacheConnection < Multiconnect::Connection::Base
+      include Keyable
+      
       class << self
         attr_accessor :cache
       end
