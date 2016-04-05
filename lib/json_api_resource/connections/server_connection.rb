@@ -1,8 +1,6 @@
 module JsonApiResource
   module Connections
     class ServerConnection < Multiconnect::Connection::Base
-      include Keyable
-
       class_attribute :error_notifier
 
       def report_error( e )

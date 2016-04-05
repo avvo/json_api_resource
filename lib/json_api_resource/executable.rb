@@ -25,7 +25,7 @@ module JsonApiResource
           result.map! do |result|
             new(client: result)
           end
-        rescue Multiconnect::Error::UnsuccessfulRequestError => e
+        rescue Multiconnect::Error::UnsuccessfulRequest => e
           Multiconnect::Connection::Result.new data: JsonApiClient::ResultSet.new
         end
       end

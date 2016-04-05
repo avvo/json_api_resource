@@ -85,7 +85,7 @@ module JsonApiResource
       else
         super
       end
-    rescue Multiconnect::Error::UnsuccessfulRequestError => e
+    rescue Multiconnect::Error::UnsuccessfulRequest => e
       nil
     end
 
