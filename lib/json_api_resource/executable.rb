@@ -13,7 +13,7 @@ module JsonApiResource
       def execute(action, *args)
         result = nil
         run_callbacks action do
-          result = Connections::ServerConnection.new( client: self.client, caching: false ).execute( action, *args )
+          result = connection.execute( action, *args )
         end
         result.success?
       end
@@ -28,6 +28,12 @@ module JsonApiResource
         rescue Multiconnect::Error::UnsuccessfulRequest => e
           Multiconnect::Connection::Result.new data: JsonApiClient::ResultSet.new
         end
+      end
+
+      private 
+
+      def connection
+        @connection ||= Connections::ServerConnection.new( client: self.client, caching: false )
       end
     end
   end

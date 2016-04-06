@@ -62,7 +62,7 @@ module JsonApiResource
       if match = method.to_s.match(/^(.*=)$/)
         self.client.send(match[0], args.first)
       elsif self.client.respond_to?(method.to_sym)
-        Connections::ServerConnection.new( client: self.client, caching: false ).execute( method, *args )
+        connection.execute( method, *args )
       else
         super
       end
