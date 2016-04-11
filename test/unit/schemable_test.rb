@@ -20,8 +20,8 @@ class SchemableTest < MiniTest::Test
 
   def test_omitted_fields_populate_with_defaults
     @user = UserResource.new(client: User.new())
-    assert @user.id
-    assert @user.name
+    assert_respond_to @user, :id
+    assert_respond_to @user, :name
 
     @user = UserResource.new(client: User.new( id: 4 ))
     assert_equal 4, @user.id

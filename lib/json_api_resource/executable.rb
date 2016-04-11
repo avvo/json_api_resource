@@ -26,7 +26,14 @@ module JsonApiResource
             new(client: result)
           end
         rescue Multiconnect::Error::UnsuccessfulRequest => e
-          Multiconnect::Connection::Result.new data: JsonApiClient::ResultSet.new
+          
+          result = JsonApiClient::ResultSet.new
+          result.meta = {status: 500}
+
+          result.errors = ActiveModel::Errors.new(result)
+          result.errors.add("ServerError", "Unable to connect to server or server returned 500")
+
+          result
         end
       end
 

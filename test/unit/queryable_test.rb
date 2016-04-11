@@ -43,7 +43,7 @@ class QueryableTest < MiniTest::Test
   def test_client_errors_are_handled_on_class_level_client_call
     User.stub :find, raise_client_error! do
       response = PropUserResource.where id: -5
-      refute response.success?
+      assert_equal 500, response.meta[:status]
     end
   end
 end

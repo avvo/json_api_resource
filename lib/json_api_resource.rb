@@ -2,7 +2,6 @@ require 'json_api_client'
 
 module JsonApiResource
   autoload :Cacheable,              'json_api_resource/cacheable'
-  autoload :CacheProcessor,         'json_api_resource/cache_processor'
   autoload :Clientable,             'json_api_resource/clientable'
   autoload :Connections,            'json_api_resource/connections'
   autoload :Conversions,            'json_api_resource/conversions'

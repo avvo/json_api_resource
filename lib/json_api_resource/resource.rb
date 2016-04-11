@@ -62,7 +62,7 @@ module JsonApiResource
       if match = method.to_s.match(/^(.*=)$/)
         self.client.send(match[0], args.first)
       elsif self.client.respond_to?(method.to_sym)
-        connection.execute( method, *args )
+        connection.execute( method, *args ).data
       else
         super
       end
@@ -73,7 +73,7 @@ module JsonApiResource
         self.client_class.send(match[0], args.first)
        
       elsif self.client_class.respond_to?(method.to_sym)
-        results = request(method, *args)
+        results = request(method, *args).data
 
         if results.is_a? JsonApiClient::ResultSet
           results.map! do |result|
