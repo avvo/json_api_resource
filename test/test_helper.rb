@@ -26,18 +26,12 @@ class Attribute < JsonApiClient::Resource
   self.site = "http://localhost:3000/api/1"
 end
 
-# old model. Let's keep some backwards compat? maybe?
 class UserResource < JsonApiResource::Resource
   wraps User
   
-  class << self
+  properties id: nil,
+           name: ""
 
-    def schema
-      { id: nil,
-        name: ""
-      }
-    end
-  end
 end
 
 class PropUserResource < JsonApiResource::Resource
@@ -67,3 +61,17 @@ end
 def raise_client_error!
   -> (*args){ raise JsonApiClient::Errors::ServerError.new("http://localhost:3000/api/1") }
 end
+
+def raise_404!
+  -> (*args){ raise JsonApiClient::Errors::NotFound.new("http://localhost:3000/api/1") }
+end
+
+class Notifier < JsonApiResource::ErrorNotifier::Base
+  class << self
+    def notify( connection, error )
+      $error = [connection.class, error.class]
+    end
+  end 
+end
+
+JsonApiResource::Connections::ServerConnection.error_notifier = Notifier

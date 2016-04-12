@@ -13,10 +13,7 @@ class ClientableTest < MiniTest::Test
 
     # let's reset the client
     UserResource.wraps User
-  end
-
-  def test_can_create_new
-
+    PropUserResource.wraps User
   end
 
   def test_throws_if_no_client_present
