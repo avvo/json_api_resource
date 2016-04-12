@@ -88,12 +88,21 @@ Then you can interface with the `Account::User` class, as you would any old AR c
 
 `wraps` is an interface method that defines what `JsonApiClient` class the resource will wrap and connect to.
 
+```ruby
+module Account
+  class User < JsonApiResource::Resource
+
+    wraps Account::Client::User
+
+  end
+end
+
 #### property
 
 Define a single property that will be populated on new object or if the field is missing.
 
 ```ruby
-class User < JsonApiResource
+class User < JsonApiResource::Resource
   wraps Whatever 
 
   # defaults to nil
@@ -110,7 +119,7 @@ end
 Define multiple properties
 
 ```ruby
-class User < JsonApiResource
+class User < JsonApiResource::Resource
   wraps Whatever 
 
   properties id: nil,
