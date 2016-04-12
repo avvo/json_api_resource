@@ -6,8 +6,8 @@ module JsonApiResource
 
       define_model_callbacks :save, :update_attributes
 
-      around_save   :catch_errors
-      around_update_attributes :catch_errors
+      around_save   :update_meta
+      around_update_attributes :update_meta
 
       class << self
 
@@ -16,26 +16,26 @@ module JsonApiResource
         def find(id)
           return nil unless id.present?
 
-          results = request(:find, id: id)
+          results = execute(:find, id: id)
           JsonApiResource::Handlers::FindHandler.new(results).result # <= <#JsonApiclient::ResultSet @errors => <...>, @data => <...>, @linked_data => <...>>
         end
 
         def where(opts = {})
           opts[:per_page] = opts.fetch(:per_page, self.per_page)
-          request(:where, opts)
+          execute(:where, opts)
         end
       end
 
       
       def save
-        request :save
+        execute :save
       end
 
       def update_attributes(attrs = {})
-        request :update_attributes, attrs
+        execute :update_attributes, attrs
       end
 
-      def catch_errors
+      def update_meta
         yield
 
         self.errors ||= ActiveModel::Errors.new(self)
@@ -43,6 +43,8 @@ module JsonApiResource
           self.errors.add(k.to_sym, Array(messages).join(', '))
         end
         self.errors
+
+        self.meta = self.client.last_request_meta
       end
     end
   end

@@ -17,4 +17,14 @@ class SchemableTest < MiniTest::Test
   def test_schemable_though_combination_of_properties
     assert_equal( {id: nil, name: "", updated_at: nil}, PropPropsUserResource.schema )
   end
+
+  def test_omitted_fields_populate_with_defaults
+    @user = UserResource.new(client: User.new())
+    assert_respond_to @user, :id
+    assert_respond_to @user, :name
+
+    @user = UserResource.new(client: User.new( id: 4 ))
+    assert_equal 4, @user.id
+    assert @user.name
+  end
 end

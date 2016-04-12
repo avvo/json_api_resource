@@ -2,10 +2,6 @@ require 'test_helper'
 
 class JsonApiResourceErrorTest < MiniTest::Test
 
-  def teardown
-    UserResource.wraps User
-  end
-
   def test_error_contains_message
     begin 
       UserResource.wraps nil
@@ -13,5 +9,7 @@ class JsonApiResourceErrorTest < MiniTest::Test
     rescue => e
       assert_equal "UserResource: A resource must have a client class", e.message
     end
+
+    UserResource.wraps User
   end
 end
