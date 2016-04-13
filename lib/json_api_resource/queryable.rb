@@ -21,7 +21,7 @@ module JsonApiResource
         end
 
         def where(opts = {})
-          opts[:per_page] = opts.fetch(:per_page, self.per_page)
+          opts[:per_page] = opts.fetch(:per_page, self.per_page) if self.per_page
           execute(:where, opts)
         end
       end
