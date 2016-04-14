@@ -27,6 +27,11 @@ module JsonApiResource
           end
         rescue Multiconnect::Error::UnsuccessfulRequest => e
           
+          empty_500_set
+          
+        end
+
+        def empty_500_set
           result = JsonApiClient::ResultSet.new
           result.meta = {status: 500}
 
@@ -40,7 +45,7 @@ module JsonApiResource
       private 
 
       def connection
-        @connection ||= Connections::ServerConnection.new( client: self.client, caching: false )
+        @connection ||= Connections::ServerConnection.new( client: self.client )
       end
     end
   end

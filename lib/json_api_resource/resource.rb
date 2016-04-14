@@ -86,7 +86,7 @@ module JsonApiResource
         super
       end
     rescue Multiconnect::Error::UnsuccessfulRequest => e
-      nil
+      empty_500_set
     end
 
     def respond_to_missing?(method_name, include_private = false)
