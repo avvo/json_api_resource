@@ -9,7 +9,8 @@ module JsonApiResource
 
       def request( action, *args )
 
-        result = self.client.send action, *args
+        client_args = args.deep_dup
+        result = self.client.send action, *client_args
 
         if result.is_a? JsonApiClient::Scope
           result = result.all

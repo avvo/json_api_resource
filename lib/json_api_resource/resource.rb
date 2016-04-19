@@ -7,6 +7,7 @@ require 'active_model'
 require 'active_model/model'
 require 'active_model/validations'
 require 'active_model/callbacks'
+require 'active_support/core_ext/object/deep_dup'
 
 module JsonApiResource
   class Resource
