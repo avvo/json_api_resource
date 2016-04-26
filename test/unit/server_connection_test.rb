@@ -13,8 +13,10 @@ class ServerConnectionTest < MiniTest::Test
 
   def test_non_404_error_returns_empty_set_with_500
     User.stub :where, raise_client_error! do
-      response = PropUserResource.where id: -5
-      assert_equal 500, response.meta[:status]
+      assert_raises JsonApiResource::Errors::UnsuccessfulRequest do
+        response = PropUserResource.where id: -5
+        assert_equal 500, response.meta[:status]
+      end
 
       assert_equal [JsonApiResource::Connections::ServerConnection, JsonApiClient::Errors::ServerError], $error
     end

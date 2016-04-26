@@ -40,10 +40,12 @@ class QueryableTest < MiniTest::Test
     end
   end
 
-  def test_client_errors_are_handled_on_class_level_client_call
+  def test_client_errors_are_propagated_up_on_class_level_client_call
     User.stub :where, raise_client_error! do
-      response = PropUserResource.where id: -5
-      assert_equal 500, response.meta[:status]
+      assert_raises JsonApiResource::Errors::UnsuccessfulRequest do
+        response = PropUserResource.where id: -5
+        assert_equal 500, response.meta[:status]
+      end
     end
   end
 end

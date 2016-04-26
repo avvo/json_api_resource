@@ -17,7 +17,7 @@ class ClientableTest < MiniTest::Test
   end
 
   def test_throws_if_no_client_present
-    assert_raises JsonApiResource::JsonApiResourceError do
+    assert_raises JsonApiResource::Errors::JsonApiResourceError do
       JsonApiResource::Resource.new({})
     end
   end

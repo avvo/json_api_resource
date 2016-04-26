@@ -140,6 +140,10 @@ NOTE: all properties are optional. If you don't have it defined and it's in the 
 
 The object will still reply to `id`, `name` and `permissions`, but you won't be able to assume they are there, and they will not appear when you do `ResourceClass.new`.
 
+### Error Handling
+
+On an unsuccessful call to the server (this means that if you have multiple connections, they will *necessarily **all*** have to fail), errors will be routed through an overridable `handle_failed_request(e)` method. By default it will re-raise the error, but you can handle it any way you want.
+
 ### Other Features
 
 #### Caching
