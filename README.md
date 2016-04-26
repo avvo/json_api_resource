@@ -142,7 +142,7 @@ The object will still reply to `id`, `name` and `permissions`, but you won't be 
 
 ### Error Handling
 
-On an unsuccessful call to the server (this means that if you have multiple connections, they will *necessarily **all*** have to fail), errors will be routed through an overridable `handle_failed_request(e)` method. By default it will re-raise the error, but you can handle it any way you want.
+On an unsuccessful call to the server (this means that if you have multiple connections, they will *necessarily* **all** have to fail), errors will be routed through an overridable `handle_failed_request(e)` method. By default it will re-raise the error, but you can handle it any way you want. 
 
 ### Other Features
 
