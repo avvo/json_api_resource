@@ -33,9 +33,8 @@ module JsonApiResource
     def initialize(opts={})
       raise( JsonApiResource::Errors::JsonApiResourceError, class: self.class, message: "A resource must have a client class" ) unless client_class.present?
 
-      self.client = self.client_class.new(self.schema)
-      self.errors = ActiveModel::Errors.new(self)
       self.attributes = opts
+      self.errors = ActiveModel::Errors.new(self)
       self.populate_missing_fields
     end
 
@@ -54,6 +53,7 @@ module JsonApiResource
       elsif client_params
         self.client = client_params
       else
+        self.client ||= self.client_class.new(self.schema)
         self.client.attributes = attr
       end
     end
