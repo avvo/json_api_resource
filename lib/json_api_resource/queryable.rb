@@ -13,7 +13,7 @@ module JsonApiResource
 
         MAX_PAGES_FOR_ALL = 25
 
-        def find(id)
+        def find(id, opts = {})
           return nil unless id.present?
 
           results = execute(:find, id: id)

@@ -58,6 +58,62 @@ class PropPropsUserResource < JsonApiResource::Resource
   property :updated_at
 end
 
+
+module Account
+  module Client
+    class Base < JsonApiClient::Resource
+      self.site = "http://localhost:3000/api/1"
+    end
+
+    class User < Base
+      class_attribute :attribute_count
+      self.attribute_count = 0
+
+      def no_name
+        "no_name"
+      end
+
+      collection_endpoint :search, request_method: :get
+    end
+
+    class Attribute < Base
+    end
+
+    class PartnerUser < Base
+    end
+  end
+
+  module V1
+    class PartnerUser < JsonApiResource::Resource
+      wraps Account::Client::PartnerUser
+    end
+
+    class User < JsonApiResource::Resource
+      wraps Account::Client::User
+
+      properties  id: nil, 
+                  name: "",
+                  associated_website_user_id: nil,
+                  updated_at: nil
+
+      belongs_to :associated_website_user, class: Account::V1::PartnerUser
+    end
+
+    class Attribute < JsonApiResource::Resource
+      wraps Account::Client::Attribute
+
+      properties  id: nil,
+                  user_id: nil,
+                  name: "",
+                  value: "",
+                  updated_at: nil
+
+      belongs_to :user
+    end
+  end
+end
+
+
 def raise_client_error!
   -> (*args){ raise JsonApiClient::Errors::ServerError.new("http://localhost:3000/api/1") }
 end

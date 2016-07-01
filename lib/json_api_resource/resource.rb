@@ -24,6 +24,7 @@ module JsonApiResource
     include JsonApiResource::Conversions
     include JsonApiResource::Cacheable
     include JsonApiResource::ErrorHandleable
+    include JsonApiResource::Associatable
 
     attr_accessor :client, :cache_expires_in
     class_attribute :per_page
@@ -36,6 +37,7 @@ module JsonApiResource
       self.attributes = opts
       self.errors = ActiveModel::Errors.new(self)
       self.populate_missing_fields
+      self._cached_associations = {}
     end
 
     def new_record?
