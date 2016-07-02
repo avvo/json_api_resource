@@ -3,11 +3,11 @@ require 'test_helper'
 class AssociatableTest < MiniTest::Test
 
   def test_derived_class
-    assert_equal "Account::V1::User", Account::V1::Attribute.send( :derived_class, :user )
-    assert_equal "Account::V1::User", Account::V1::Attribute.send( :derived_class, "user" )
+    assert_equal Account::V1::User, JsonApiResource::Associations::Base.send( :derived_class, Account::V1::Attribute, :user )
+    assert_equal Account::V1::User, JsonApiResource::Associations::Base.send( :derived_class, Account::V1::Attribute, "user" )
     
-    assert_equal "UserResource", UserResource.send( :derived_class, :user_resource )
-    assert_equal "UserResource", UserResource.send( :derived_class, "user_resource" )
+    assert_equal UserResource, JsonApiResource::Associations::Base.send( :derived_class, UserResource, :user_resource )
+    assert_equal UserResource, JsonApiResource::Associations::Base.send( :derived_class, UserResource, "user_resource" )
   end
 
   def test_belongs_to_creates_correct_method

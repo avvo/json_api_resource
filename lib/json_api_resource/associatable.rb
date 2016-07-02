@@ -5,24 +5,15 @@ module JsonApiResource
     included do
       class << self
         def belongs_to( name, opts = {} )
-          association = Associations::BelongsTo.create( name, opts )
-          associate name, association
+          Associations::BelongsTo.create( self, name, opts )
         end
 
         def has_one( name, opts = {} )
-          association = Associations::HasOne.create( name, opts )
-          associate name, association
+          Associations::HasOne.create( self, name, opts )
         end
 
         def has_many( name, opts = {} )
-          association = Associations::HasMany.create( name, opts )
-          associate name, association
-        end
-
-        private
-
-        def associate( name, association )
-          define_method(name, association)
+          Associations::HasMany.create( self, name, opts )
         end
       end
 
