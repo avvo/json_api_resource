@@ -1,10 +1,6 @@
 module JsonApiResource
   module Associations
     class HasOne < Base
-      def post_process( value )
-        value.first
-      end
-
       def action
         :where
       end
@@ -14,7 +10,7 @@ module JsonApiResource
       end
 
       def type
-        JsonApiResource::Associations::HAS_ONE
+        JsonApiResource::Associations::HAS_MANY
       end
     end
   end

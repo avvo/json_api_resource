@@ -37,7 +37,6 @@ module JsonApiResource
       self.attributes = opts
       self.errors = ActiveModel::Errors.new(self)
       self.populate_missing_fields
-      self._cached_associations = {}
     end
 
     def new_record?
