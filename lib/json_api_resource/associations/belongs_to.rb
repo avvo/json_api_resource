@@ -1,12 +1,16 @@
 module JsonApiResource
   module Associations
     class BelongsTo < Base
-      def action
+      def default_action
         :find
       end
 
-      def server_key( association, opts )
-        "#{association}_id"
+      def server_key
+        "#{name}_id"
+      end
+
+      def query(root_instance)
+        root_instance.id
       end
 
       def type

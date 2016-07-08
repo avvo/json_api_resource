@@ -81,6 +81,15 @@ module Account
 
     class PartnerUser < Base
     end
+
+    class Image < Base
+    end
+
+    class Address < Base
+    end
+
+    class Friendship < Base
+    end
   end
 
   module V1
@@ -88,15 +97,16 @@ module Account
       wraps Account::Client::PartnerUser
     end
 
-    class User < JsonApiResource::Resource
-      wraps Account::Client::User
+    class Friendship < JsonApiResource::Resource
+      wraps Account::Client::Friendship
+    end
 
-      properties  id: nil, 
-                  name: "",
-                  associated_website_user_id: nil,
-                  updated_at: nil
+    class Image < JsonApiResource::Resource
+      wraps Account::Client::Image
+    end
 
-      belongs_to :associated_website_user, class: Account::V1::PartnerUser
+    class Address < JsonApiResource::Resource
+      wraps Account::Client::Address
     end
 
     class Attribute < JsonApiResource::Resource
@@ -109,6 +119,23 @@ module Account
                   updated_at: nil
 
       belongs_to :user
+    end
+
+    class User < JsonApiResource::Resource
+      wraps Account::Client::User
+
+      properties  id: nil, 
+                  name: "",
+                  associated_website_user_id: nil,
+                  updated_at: nil
+
+      belongs_to :associated_website_user, class: Account::V1::PartnerUser
+
+      has_one    :address
+      has_one    :profile_image, class: Account::V1::Image, type: :profile
+
+      has_many   :friendships
+      has_many   :attrs, class: Account::V1::Attribute
     end
   end
 end

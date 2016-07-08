@@ -2,15 +2,20 @@ module JsonApiResource
   module Associations
     class HasOne < Base
       def post_process( value )
-        value.first
+        Array(value).first
       end
 
-      def action
+      def default_action  
         :where
       end
 
-      def association_key( association, opts )
-        raise "eff"
+      def server_key
+        class_name = root.to_s.demodulize.underscore
+        "#{class_name}_id"
+      end
+
+      def query(root_instance)
+        { key => root_instance.id }.merge(opts)
       end
 
       def type

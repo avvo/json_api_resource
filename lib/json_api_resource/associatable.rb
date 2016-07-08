@@ -4,11 +4,11 @@ module JsonApiResource
 
     included do
 
-      class_attribute :associations
-      self.associations = {}
+      class_attribute :_associations
+      self._associations = {}
 
-      attr_accessor :_cached_associations
-
+      attr_accessor :_cached_associations      
+      
       class << self
         def belongs_to( name, opts = {} )
           process Associations::BelongsTo.new( self, name, opts )
@@ -34,18 +34,16 @@ module JsonApiResource
         end
 
         def methodize( association )
-          
-          method = lambda do 
-            unless _cached_associations.has_key? association.name
-              result = association.klass.send( association.action, association.key, opts )
-              result = association.process result
+          define_method association.name do 
+            self._cached_associations ||= {}
+            unless self._cached_associations.has_key? association.name
+              result = association.klass.send( association.action, association.query(self) )
+              result = association.post_process result
               
-              _cached_associations[association.name] = result
+              self._cached_associations[association.name] = result
             end
-            _cached_associations[association.name]
+            self._cached_associations[association.name]
           end
-
-          associated_class.send :define_method, association, method
         end
       end
     end

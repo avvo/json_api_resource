@@ -13,5 +13,8 @@ module JsonApiResource
 
     class UnsuccessfulRequest < JsonApiResourceError
     end
+
+    class InvalidAssociation < JsonApiResourceError
+    end
   end
 end
