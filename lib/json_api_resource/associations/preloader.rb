@@ -5,6 +5,7 @@ module JsonApiResource
 
       class << self
         def preload ( objects, preloads )
+          objects  = Array(objects)
           preloads = Array(preloads)
           
           preloads.each do |preload|
@@ -33,7 +34,6 @@ module JsonApiResource
         end
 
         def preloader_for( association )
-          puts association.inspect
           preloader_class = PREOLOADERS_FOR_ASSOCIATIONS[association.type]
           preloader_class.new association
         end
