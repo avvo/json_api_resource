@@ -90,6 +90,12 @@ module Account
 
     class Friendship < Base
     end
+
+    class Permission < Base
+    end
+
+    class Thing < Base
+    end
   end
 
   module V1
@@ -107,6 +113,14 @@ module Account
 
     class Address < JsonApiResource::Resource
       wraps Account::Client::Address
+    end
+
+    class Permission < JsonApiResource::Resource
+      wraps Account::Client::Permission
+    end
+
+    class Thing < JsonApiResource::Resource
+      wraps Account::Client::Thing
     end
 
     class Attribute < JsonApiResource::Resource
@@ -127,15 +141,19 @@ module Account
       properties  id: nil, 
                   name: "",
                   associated_website_user_id: nil,
+                  permission_ids: [],
                   updated_at: nil
 
       belongs_to :associated_website_user, class: Account::V1::PartnerUser
 
       has_one    :address
       has_one    :profile_image, class: Account::V1::Image, type: :profile
+      has_one    :thing, foreign_key: :person_id
 
       has_many   :friendships
       has_many   :attrs, class: Account::V1::Attribute
+
+      has_many   :permissions, prefetched_ids: :permission_ids
     end
   end
 end

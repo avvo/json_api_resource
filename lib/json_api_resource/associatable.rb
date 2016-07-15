@@ -19,7 +19,11 @@ module JsonApiResource
         end
 
         def has_many( name, opts = {} )
-          process Associations::HasMany.new( self, name, opts )
+          if opts[:prefetched_ids]
+            process Associations::HasManyPrefetched.new( self, name, opts )
+          else
+            process Associations::HasMany.new( self, name, opts )
+          end
         end
 
         private
@@ -37,8 +41,12 @@ module JsonApiResource
           define_method association.name do 
             self._cached_associations ||= {}
             unless self._cached_associations.has_key? association.name
-              result = association.klass.send( association.action, association.query(self) )
-              result = association.post_process result
+              if association.callable?(self)
+                result = association.klass.send( association.action, association.query(self) )
+                result = association.post_process result
+              else
+                result = association.nil_default
+              end
               
               self._cached_associations[association.name] = result
             end

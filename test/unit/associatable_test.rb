@@ -46,6 +46,12 @@ class AssociatableTest < MiniTest::Test
     assert attribute.user
   end
 
+  def test_belongs_to_with_nil_id_doesnt_make_http_call
+    user = Account::V1::User.new({})
+    result = user.associated_website_user
+    assert_nil result
+  end
+
   def test_has_one_creates_correct_method
     assert Account::V1::User.new.respond_to? :profile_image
     assert Account::V1::User.new.respond_to? :address
@@ -140,6 +146,51 @@ class AssociatableTest < MiniTest::Test
     assert user.attrs
   end
 
+  def test_has_many_prefetched_creates_correct_method
+    assert Account::V1::User.new.respond_to? :permissions
+  end
+
+  def test_has_many_prefetched
+    Account::Client::Permission.stub :where, JsonApiClient::Scope.new(id: [6, 7]) do
+      Account::Client::Permission.where.stub :all, JsonApiClient::ResultSet.new([ Account::Client::Permission.new(id: 6, user_id: 6), 
+                                                                                  Account::Client::Permission.new(id: 7, user_id: 6)]) do
+        user = Account::V1::User.new({id: 6, permission_ids: [6, 7]})
+        result = user.permissions
+        refute_nil result
+        assert_equal JsonApiClient::ResultSet, result.class
+        assert_equal [Account::V1::Permission, Account::V1::Permission], result.map(&:class)
+        assert_equal [6, 7], result.map(&:id)
+      end
+    end
+  end
+
+  def test_has_many_prefetched_caches_result
+    user = Account::V1::User.new({id: 6, permission_ids: [6, 7]})
+
+    Account::Client::Permission.stub :where, JsonApiClient::Scope.new(id: [6, 7]) do
+      Account::Client::Permission.where.stub :all, JsonApiClient::ResultSet.new([ Account::Client::Permission.new(id: 6, user_id: 6), 
+                                                                                  Account::Client::Permission.new(id: 7, user_id: 6)]) do
+        result = user.permissions
+        refute_nil result
+        assert_equal JsonApiClient::ResultSet, result.class
+        assert_equal [Account::V1::Permission, Account::V1::Permission], result.map(&:class)
+        assert_equal [6, 7], result.map(&:id)
+      end
+    end
+
+    assert user.permissions
+  end
+
+  def test_has_many_prefetched_with_nil_id_doesnt_make_http_call
+    user = Account::V1::User.new({})
+    result = user.permissions
+    assert_equal [], result    
+
+    user = Account::V1::User.new({permission_ids: nil})
+    result = user.permissions
+    assert_equal [], result
+  end
+
   def test_associations_will_asplode_with_invalid_action
     assert_raises JsonApiResource::Errors::InvalidAssociation do
       UserResource.belongs_to :user_resource, action: nil
@@ -161,16 +212,16 @@ class AssociatableTest < MiniTest::Test
   end
 
   def test_association_objects_have_correct_types
-    bt = JsonApiResource::Associations::BelongsTo.new(UserResource, :user_prop_resource)
-    ho = JsonApiResource::Associations::HasOne.new(UserResource, :user_prop_resource)
-    hm = JsonApiResource::Associations::HasMany.new(UserResource, :user_prop_resource)
+    bt  = JsonApiResource::Associations::BelongsTo.new(UserResource, :user_prop_resource)
+    ho  = JsonApiResource::Associations::HasOne.new(UserResource, :user_prop_resource)
+    hm  = JsonApiResource::Associations::HasMany.new(UserResource, :user_prop_resource)
+    hmp = JsonApiResource::Associations::HasManyPrefetched.new(UserResource, :user_prop_resource, prefetched_ids: :permissions_ids)
 
     assert_equal JsonApiResource::Associations::BELONGS_TO, bt.type
     assert_equal JsonApiResource::Associations::HAS_ONE, ho.type
     assert_equal JsonApiResource::Associations::HAS_MANY, hm.type
+    assert_equal JsonApiResource::Associations::HAS_MANY_PREFETCHED, hmp.type
   end
-
-
 
   def test_base_association_raises
     assert_raises NotImplementedError do
@@ -186,7 +237,16 @@ class AssociatableTest < MiniTest::Test
     end
 
     assert_raises NotImplementedError do
-      JsonApiResource::Associations::Base.new( UserResource, :bla, class: UserResource, action: :where, foreign_key: :id ).query
+      JsonApiResource::Associations::Base.new( UserResource, :bla, class: UserResource, action: :where, foreign_key: :id ).query( nil )
+    end
+
+    assert_raises NotImplementedError do
+      JsonApiResource::Associations::Base.new( UserResource, :bla, class: UserResource, action: :where, foreign_key: :id ).callable?( nil )
+    end
+
+    assert_raises NotImplementedError do
+      JsonApiResource::Associations::Base.new( UserResource, :bla, class: UserResource, action: :where, foreign_key: :id ).default_nil
     end
   end
 end
+

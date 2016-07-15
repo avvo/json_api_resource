@@ -24,6 +24,7 @@ module JsonApiResource
     include JsonApiResource::Conversions
     include JsonApiResource::Cacheable
     include JsonApiResource::ErrorHandleable
+    include JsonApiResource::Errors
     include JsonApiResource::Associatable
 
     attr_accessor :client, :cache_expires_in
@@ -32,7 +33,7 @@ module JsonApiResource
     delegate :to_json, to: :attributes
 
     def initialize(opts={})
-      raise( JsonApiResource::Errors::JsonApiResourceError, class: self.class, message: "A resource must have a client class" ) unless client_class.present?
+      raise_unless client_class.present?, "A resource must have a client class", JsonApiResource::Errors::JsonApiResourceError
 
       self.attributes = opts
       self.errors = ActiveModel::Errors.new(self)

@@ -9,8 +9,16 @@ module JsonApiResource
         "#{name}_id"
       end
 
-      def query(root_instance)
-        root_instance.id
+      def query( root_instance )
+        root_instance.send key
+      end
+
+      def callable?( root_instance )
+        root_instance.send(key).present?
+      end
+
+      def nil_default
+        nil
       end
 
       def type
