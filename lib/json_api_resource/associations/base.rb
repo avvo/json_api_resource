@@ -2,15 +2,15 @@ module JsonApiResource
   module Associations
     class Base
       include ::JsonApiResource::Errors
-      attr_accessor :name, :action, :key, :opts, :root
+      attr_accessor :name, :action, :key, :root
 
       def initialize(associated_class, name, opts = {})
         self.name   = name.to_sym
         self.root   = associated_class
-        self.opts   = opts.merge( ignore_pagination: true )
+        @opts       = opts.merge( ignore_pagination: true )
         
-        self.action = opts.delete :action       do default_action end
-        self.key    = opts.delete :foreign_key  do server_key end
+        self.action = @opts.delete :action       do default_action end
+        self.key    = @opts.delete :foreign_key  do server_key end
 
         self.key    = self.key.try :to_sym
         validate_options
@@ -34,11 +34,15 @@ module JsonApiResource
 
       # klass has to be lazy initted for circular dependencies
       def klass
-        @klass ||= opts.delete :class do derived_class end
+        @klass ||= @opts.delete :class do derived_class end
       end
 
       def post_process( value )
         value
+      end
+
+      def opts
+        @opts.except *ASSOCIATION_OPTS
       end
 
       protected
@@ -59,6 +63,8 @@ module JsonApiResource
         class_string = [module_string, class_string].select{|s| s.present? }.join "::"
         class_string.constantize
       end
+
+      ASSOCIATION_OPTS  = [:class, :action, :foreign_key, :prefetched_ids]
 
       RESERVED_KEYWORDS = [:attributes, :_associations, :_cached_associations, :schema, :client]
 

@@ -6,7 +6,7 @@ module JsonApiResource
       end
 
       def server_key
-        opts[:prefetched_ids]
+        @opts[:prefetched_ids]
       end
 
       def query( root_instance )

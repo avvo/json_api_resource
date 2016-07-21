@@ -248,5 +248,14 @@ class AssociatableTest < MiniTest::Test
       JsonApiResource::Associations::Base.new( UserResource, :bla, class: UserResource, action: :where, foreign_key: :id ).default_nil
     end
   end
+
+  def test_non_query_opts_are_not_in_an_association_query
+    attrs_association = Account::V1::User._associations[:attrs]
+    perms_association = Account::V1::User._associations[:permissions]
+    user              = Account::V1::User.new id: 5, permission_ids: [4]
+
+    assert_equal( { user_id: 5, ignore_pagination: true }, attrs_association.query(user) )
+    assert_equal( { id: [4], ignore_pagination: true }, perms_association.query(user) )
+  end
 end
 
