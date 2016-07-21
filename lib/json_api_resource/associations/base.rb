@@ -7,7 +7,7 @@ module JsonApiResource
       def initialize(associated_class, name, opts = {})
         self.name   = name.to_sym
         self.root   = associated_class
-        @opts       = opts.merge( ignore_pagination: true )
+        @opts       = opts.merge( skip_pagination: true )
         
         self.action = @opts.delete :action       do default_action end
         self.key    = @opts.delete :foreign_key  do server_key end
