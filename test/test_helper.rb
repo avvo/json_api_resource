@@ -58,6 +58,107 @@ class PropPropsUserResource < JsonApiResource::Resource
   property :updated_at
 end
 
+
+module Account
+  module Client
+    class Base < JsonApiClient::Resource
+      self.site = "http://localhost:3000/api/1"
+    end
+
+    class User < Base
+      class_attribute :attribute_count
+      self.attribute_count = 0
+
+      def no_name
+        "no_name"
+      end
+
+      collection_endpoint :search, request_method: :get
+    end
+
+    class Attribute < Base
+    end
+
+    class PartnerUser < Base
+    end
+
+    class Image < Base
+    end
+
+    class Address < Base
+    end
+
+    class Friendship < Base
+    end
+
+    class Permission < Base
+    end
+
+    class Thing < Base
+    end
+  end
+
+  module V1
+    class PartnerUser < JsonApiResource::Resource
+      wraps Account::Client::PartnerUser
+    end
+
+    class Friendship < JsonApiResource::Resource
+      wraps Account::Client::Friendship
+    end
+
+    class Image < JsonApiResource::Resource
+      wraps Account::Client::Image
+    end
+
+    class Address < JsonApiResource::Resource
+      wraps Account::Client::Address
+    end
+
+    class Permission < JsonApiResource::Resource
+      wraps Account::Client::Permission
+    end
+
+    class Thing < JsonApiResource::Resource
+      wraps Account::Client::Thing
+    end
+
+    class Attribute < JsonApiResource::Resource
+      wraps Account::Client::Attribute
+
+      properties  id: nil,
+                  user_id: nil,
+                  name: "",
+                  value: "",
+                  updated_at: nil
+
+      belongs_to :user
+    end
+
+    class User < JsonApiResource::Resource
+      wraps Account::Client::User
+
+      properties  id: nil, 
+                  name: "",
+                  associated_website_user_id: nil,
+                  permission_ids: [],
+                  updated_at: nil
+
+      belongs_to :associated_website_user, class: Account::V1::PartnerUser
+
+      has_one    :address
+      has_one    :profile_image, class: Account::V1::Image, type: :profile
+      has_one    :thing, foreign_key: :person_id
+
+      has_many   :friendships
+      has_many   :attrs, class: Account::V1::Attribute
+
+      has_many   :permissions, prefetched_ids: :permission_ids
+    end
+  end
+end
+
+
 def raise_client_error!
   -> (*args){ raise JsonApiClient::Errors::ServerError.new("http://localhost:3000/api/1") }
 end

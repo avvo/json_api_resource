@@ -1,6 +1,8 @@
 require 'json_api_client'
 
 module JsonApiResource
+  autoload :Associatable,           'json_api_resource/associatable'
+  autoload :Associations,           'json_api_resource/associations'
   autoload :Cacheable,              'json_api_resource/cacheable'
   autoload :Clientable,             'json_api_resource/clientable'
   autoload :Connections,            'json_api_resource/connections'
