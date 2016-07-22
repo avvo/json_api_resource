@@ -8,6 +8,10 @@ module JsonApiResource
           { key => ids }.merge(opts)
         end
 
+        def safe?( query )
+          query[key].present?
+        end
+
         def distributor_class
           JsonApiResource::Associations::Preloaders::Distributors::DistributorByObjectId
         end

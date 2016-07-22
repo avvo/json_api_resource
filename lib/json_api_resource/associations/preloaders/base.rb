@@ -26,7 +26,7 @@ module JsonApiResource
         private
 
         def safe?( query )
-          query[key].present?
+          raise NotImplementedError
         end
 
         def assign( objects, results )
