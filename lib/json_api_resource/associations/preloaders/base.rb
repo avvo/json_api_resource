@@ -14,12 +14,20 @@ module JsonApiResource
 
         def preload( objects )
           query       = bulk_query( objects )
-          results     = klass.send action, query
+          if safe? query
+            results     = klass.send action, query
+          else
+            results     = []
+          end
 
           distributor.distribute objects, results
         end
 
         private
+
+        def safe?( query )
+          query[key].present?
+        end
 
         def assign( objects, results )
           raise NotImplementedError
