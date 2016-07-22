@@ -140,6 +140,109 @@ NOTE: all properties are optional. If you don't have it defined and it's in the 
 
 The object will still reply to `id`, `name` and `permissions`, but you won't be able to assume they are there, and they will not appear when you do `ResourceClass.new`.
 
+### Associations
+
+#### interface
+
+* `belongs_to` - your resource has the `#{object}_id` for the association.
+  * calls `object_class.find `
+* `has_one` - will call the server with `opts.merge "#{root_class}_id => root_object.id` and grab the first thing that comes back
+  * calls `object_class.where`
+* `has_many` - same as `has_one` but will give you the full array of objects
+  * calls 'object_class.where`
+
+#### options
+
+* `:foreign_key` - this is what the server will get as the key for `has_one` and `has_many`. `belongs_to` is weird and will send the key to the resource object. for example
+```ruby
+class Admin < JsonApiResource::Resource
+  wraps Service::Client::Admin
+
+  property user_id
+  # this one is a little weird
+  belongs_to :person, foreign_key: :user_id, class: User
+end
+```
+* `:action` - If you have a custom action you're using for lookup, you can override the default `where` and `find`. For example
+```ruby
+class Service::Client::Superuser < Service::Client::Base
+  # i don't know why you would have this, but whatever
+  custom_endpoint :superuser_from_user_id, :on=> :collection, :request_method=> :get
+end
+
+class User
+  wraps Service::Client::User
+  has_one :superuser, action: :superuser_from_user_id
+end
+```
+*NOTE: keep in mind, this will still make the call with the `opts.merge foreign_key => root_object.id` hash. If you want to override the query, you may want to consider 1: if the API is RESTful 2: rolling your own association.*
+
+* `:prefetched_ids` *(`has_many` only)* -  in the case that the root object has a collection of ids that come preloaded in it
+```ruby
+class User < JsonApiResource::Resource
+  wraps Service::Client::User
+  property address_ids, []
+
+  has_many :addresses, prefetched_ids: :address_ids
+end
+```
+
+
+#### notes
+* `:through` is not supported, nor will it ever be, because of the hidden complexity and cost of n HTTP calls. if you want to implement `through` do
+
+* the servers you're preloading from/associating have controller entities that respond to show(`find`) and index(`where`)
+* __important__: the index(`where`) action has to support `ingore_pagination`. Otherwise you may lose associations as they get capped by the per-page limit
+
+### Preloader
+
+Sometimes you have many objects that you need to fetch associations for. It's expensive to have to iterate over them one by one and annoying to have to assign the results. Well, now there's a `Preloader` that can do all of that for you
+
+#### example
+
+Let's say you have `user`s who have `address`es. 
+```ruby
+class User < JsonApiResource::Resource
+  wraps Service::Client::User
+
+  # shiny new function yay
+  has_many :addresses
+end
+
+class Address < JsonApiResource::Resource
+  wraps Service::Client::Address
+end
+```
+
+With the associations in place, you can now use them to preload all the addresses for your users in a single query.
+
+```ruby
+@users = User.where id: [1, 2, 3, 4, 5]
+
+# that's it. that's all you have to do.
+JsonApiClient::Associations::Preloader.preload @users, :addresses
+
+# all the users now have addresses assigned to them and will not hit the server again
+puts @users.map &:addresses
+```
+
+#### interface
+
+`Preloader.preload( objects, preloads )` takes
+
+* the objects you want the associations to be tied to (`@users` in our example)
+* the list of associations you want bulk fetched from the server as symbols. 
+  * can be a single symbol, or a list
+  * has to have a corresponding association on the objects, and the name has to match
+
+#### notes
+
+This is a simple tool so don't expect too much magic. The Preloader will explode if
+
+* the objects aren't the same class
+* the results aren't the same class (although i don't know how that would be possible)
+* the result set can't be matched to the objects
+
 ### Error Handling
 
 On an unsuccessful call to the server (this means that if you have multiple connections, they will *necessarily* **all** have to fail), errors will be routed through an overridable `handle_failed_request(e)` method. By default it will re-raise the error, but you can handle it any way you want. 
