@@ -7,6 +7,8 @@ module JsonApiResource
         def preload ( objects, preloads )
           objects  = Array(objects)
           preloads = Array(preloads)
+
+          return objects if objects.empty?
           
           preloads.each do |preload|
 

@@ -127,4 +127,8 @@ class AssociationPreloaderTest < MiniTest::Test
     assert_equal @attrs.select{|r| r.user_id == 1}.map(&:id), @users.first.attrs.map(&:id)
   end
 
+  def test_preloader_doesnt_explode_with_empty_objects_array
+    assert_equal [], JsonApiResource::Associations::Preloader.preload([], :attrs)
+  end
+
 end
