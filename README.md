@@ -170,6 +170,9 @@ class Service::Client::Superuser < Service::Client::Base
   custom_endpoint :superuser_from_user_id, :on=> :collection, :request_method=> :get
 end
 
+* 'class' - specifies the class for the association
+* 'class_name' - a string that specifies a class for the association. Handy for load order issues
+
 class User
   wraps Service::Client::User
   has_one :superuser, action: :superuser_from_user_id

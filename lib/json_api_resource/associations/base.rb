@@ -34,7 +34,10 @@ module JsonApiResource
 
       # klass has to be lazy initted for circular dependencies
       def klass
-        @klass ||= @opts.delete :class do derived_class end
+        @klass ||= begin
+          klass = @opts.delete(:class_name).try :constantize
+          klass || @opts.delete( :class ) do derived_class end
+        end
       end
 
       def post_process( value )
@@ -64,7 +67,7 @@ module JsonApiResource
         class_string.constantize
       end
 
-      ASSOCIATION_OPTS  = [:class, :action, :foreign_key, :prefetched_ids]
+      ASSOCIATION_OPTS  = [:class, :action, :foreign_key, :prefetched_ids, :class_name]
 
       RESERVED_KEYWORDS = [:attributes, :_associations, :_cached_associations, :schema, :client]
 

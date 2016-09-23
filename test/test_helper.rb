@@ -151,7 +151,7 @@ module Account
       has_one    :thing, foreign_key: :person_id
 
       has_many   :friendships
-      has_many   :attrs, class: Account::V1::Attribute
+      has_many   :attrs, class_name: "Account::V1::Attribute"
 
       has_many   :permissions, prefetched_ids: :permission_ids
     end
