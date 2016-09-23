@@ -170,14 +170,14 @@ class Service::Client::Superuser < Service::Client::Base
   custom_endpoint :superuser_from_user_id, :on=> :collection, :request_method=> :get
 end
 
-* 'class' - specifies the class for the association
-* 'class_name' - a string that specifies a class for the association. Handy for load order issues
-
 class User
   wraps Service::Client::User
   has_one :superuser, action: :superuser_from_user_id
 end
 ```
+* 'class' - specifies the class for the association
+* 'class_name' - a string that specifies a class for the association. Handy for load order issues
+
 *NOTE: keep in mind, this will still make the call with the `opts.merge foreign_key => root_object.id` hash. If you want to override the query, you may want to consider 1: if the API is RESTful 2: rolling your own association.*
 
 * `:prefetched_ids` *(`has_many` only)* -  in the case that the root object has a collection of ids that come preloaded in it
