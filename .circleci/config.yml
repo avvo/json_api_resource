@@ -7,6 +7,7 @@ jobs:
     steps:
       - checkout
       - run: bundle config packagecloud.io $PACKAGECLOUD_READ_TOKEN
+      - run: sudo apt-get install aspell libaspell-dev
       - run: bundle install
       - run: bundle exec rake test
       # Clean up any .gem files from all previous builds
