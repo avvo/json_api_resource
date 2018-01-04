@@ -1,4 +1,5 @@
 source 'http://rubygems.org'
+source 'https://packagecloud.io/avvo/gems'
 
 gemspec
 
